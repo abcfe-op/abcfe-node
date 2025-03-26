@@ -1,0 +1,12 @@
+[common]
+mode = "local"
+serviceName = "abcfe-node"
+
+[logInfo]
+path = "../log/syslogs/"
+maxAgeHour = 1440
+rotateHour = 24
+ProdTelKey = "https://api.telegram.org/bot7680194780:AAH8x_GSIdSlQIBcffSBPkxRvTr63ssrrbE/sendMessage"
+ProdChatId = -4572666133
+DevTelKey = "https://api.telegram.org/bot7821171888:AAH9oi3bI7M-rGZJvRM2J5h6vYXJ3KxqKf0/sendMessage"
+DevChatId = -4572666133
