@@ -53,7 +53,7 @@ func InitLogger(cfg *conf.Config) error {
 	w := zapcore.AddSync(rotator)
 	cw := zapcore.AddSync(os.Stdout)
 	var core zapcore.Core
-	stag = cfg.Common.Mode
+	stag = cfg.Common.Level
 	if stag == "alpha" {
 		core = zapcore.NewTee(
 			zapcore.NewCore(zapcore.NewJSONEncoder(encCfg), w, zap.DebugLevel),
@@ -129,14 +129,14 @@ func sendTelegramAlert(cf *conf.Config, body string) bool {
 	telKey := cf.LogInfo.DevTelKey
 	chatId := cf.LogInfo.DevChatId
 
-	if cf.Common.Mode == "prod" {
-		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Mode + "] " + "!!!From Prod-live stage!!! : \n" + body + "\nModule : " + path
+	if cf.Common.Level == "prod" {
+		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Level + "] " + "!!!From Prod-live stage!!! : \n" + body + "\nModule : " + path
 		telKey = cf.LogInfo.ProdTelKey
 		chatId = cf.LogInfo.ProdChatId
-	} else if cf.Common.Mode == "dev" {
-		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Mode + "] " + "From dev stage : \n" + body + "\nModule : " + path
+	} else if cf.Common.Level == "dev" {
+		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Level + "] " + "From dev stage : \n" + body + "\nModule : " + path
 	} else {
-		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Mode + "] " + " Message : \n" + body + "\nModule : " + path
+		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Level + "] " + " Message : \n" + body + "\nModule : " + path
 	}
 
 	pbytes, _ := json.Marshal(map[string]interface{}{"chat_id": chatId, "text": msg})

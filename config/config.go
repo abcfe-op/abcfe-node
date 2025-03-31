@@ -9,8 +9,10 @@ import (
 )
 
 type Common struct {
-	Mode        string
+	Level       string // local, dev, prod
 	ServiceName string
+	Port        int
+	Mode        string // boot, validator, sentry
 }
 
 type LogInfo struct {
@@ -23,9 +25,19 @@ type LogInfo struct {
 	DevChatId  int
 }
 
+type DB struct {
+	Path string
+}
+
+type Wallet struct {
+	Path string
+}
+
 type Config struct {
 	Common  Common
 	LogInfo LogInfo
+	DB      DB
+	Wallet  Wallet
 }
 
 func NewConfig(filepath string) (*Config, error) {
