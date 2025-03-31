@@ -12,10 +12,8 @@
       "mode": "auto",
       "program": "${workspaceFolder}/cmd/node/main.go",
       "env": {},
-      // "args": ["-mode=rest", "-port=4000"],
       "console": "integratedTerminal",
-      // "cwd": "${workspaceFolder}/run-nodes",
-      "output": "console"
+      "cwd": "${workspaceFolder}"
     }
   ]
 }
