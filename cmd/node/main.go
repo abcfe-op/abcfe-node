@@ -20,7 +20,9 @@ func main() {
 
 	app.SigHandler()
 
+	// Node 시작
 	logger.Info("Node start.")
+
 	app.Wait()
 	logger.Info("Node terminated.")
 }
