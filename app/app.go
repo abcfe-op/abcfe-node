@@ -10,6 +10,7 @@ import (
 
 	"github.com/abcfe/abcfe-node/common/logger"
 	conf "github.com/abcfe/abcfe-node/config"
+	"github.com/abcfe/abcfe-node/core"
 	"github.com/abcfe/abcfe-node/storage"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -19,9 +20,10 @@ var mode = flag.String("mode", "rest", "Choose between 'boot' and 'validator'")
 var configPath = flag.String("config", "", "Set path of the config file")
 
 type App struct {
-	stop chan struct{}
-	Conf conf.Config
-	DB   *leveldb.DB // db내의 mutex는 복사되면 안됨
+	stop       chan struct{}
+	Conf       conf.Config
+	DB         *leveldb.DB // db내의 mutex는 복사되면 안됨
+	BlockChain *core.BlockChain
 }
 
 func New() (*App, error) {
@@ -41,10 +43,16 @@ func New() (*App, error) {
 		logger.Error("Failed to load db: ", err)
 	}
 
+	bc, err := core.NewChainState(db)
+	if err != nil {
+		return nil, err
+	}
+
 	app := &App{
-		stop: make(chan struct{}),
-		Conf: *cfg,
-		DB:   db,
+		stop:       make(chan struct{}),
+		Conf:       *cfg,
+		DB:         db,
+		BlockChain: bc,
 	}
 
 	return app, nil
