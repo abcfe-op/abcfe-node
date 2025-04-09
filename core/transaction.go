@@ -1,10 +1,12 @@
 package core
 
+import prt "github.com/abcfe/abcfe-node/protocol"
+
 // 트랜잭션 구조체
 type Transaction struct {
-	Version   uint32 `json:"version"`   // 트랜잭션 버전
-	ID        Hash   `json:"id"`        // 트랜잭션 ID (해시)
-	Timestamp int64  `json:"timestamp"` // 트랜잭션 생성 시간
+	Version   uint32   `json:"version"`   // 트랜잭션 버전
+	ID        prt.Hash `json:"id"`        // 트랜잭션 ID (해시)
+	Timestamp int64    `json:"timestamp"` // 트랜잭션 생성 시간
 
 	Inputs  []*TxInput  `json:"inputs"`  // 트랜잭션 입력
 	Outputs []*TxOutput `json:"outputs"` // 트랜잭션 출력
@@ -14,15 +16,23 @@ type Transaction struct {
 }
 
 type TxInput struct {
-	TxID        Hash      `json:"txId"`        // 참조 트랜잭션 ID
-	OutputIndex uint32    `json:"outputIndex"` // 참조 출력 인덱스
-	Signature   Signature `json:"signature"`   // 서명
-	PublicKey   []byte    `json:"publicKey"`   // 공개키
-	Sequence    uint32    `json:"sequence"`    // 시퀀스 번호 (RBF 지원)
+	TxID        prt.Hash      `json:"txId"`        // 참조 트랜잭션 ID
+	OutputIndex uint32        `json:"outputIndex"` // 참조 출력 인덱스
+	Signature   prt.Signature `json:"signature"`   // 서명
+	PublicKey   []byte        `json:"publicKey"`   // 공개키
+	Sequence    uint32        `json:"sequence"`    // 시퀀스 번호 (RBF 지원)
 }
 
 type TxOutput struct {
-	Address Address `json:"address"` // 수신자 주소
-	Amount  uint64  `json:"amount"`  // 금액 (int에서 uint64로 변경)
-	TxType  uint8   `json:"txType"`  // 스크립트 타입 (일반/스테이킹/기타)
+	Address prt.Address `json:"address"` // 수신자 주소
+	Amount  uint64      `json:"amount"`  // 금액 (int에서 uint64로 변경)
+	TxType  uint8       `json:"txType"`  // 스크립트 타입 (일반/스테이킹/기타)
 }
+
+func SetTx() {}
+
+func GetTx(height uint64, id prt.Hash) {}
+
+func GetTxStatus(height uint64, id prt.Hash) {}
+
+func GetTxs(height uint64) {}

@@ -1,10 +1,12 @@
 package consensus
 
-import "github.com/abcfe/abcfe-node/core"
+import (
+	prt "github.com/abcfe/abcfe-node/protocol"
+)
 
 // 검증자 인터페이스
 type ValidatorInfo interface {
-	GetAddress() core.Address
+	GetAddress() prt.Address
 	GetPubKey() []byte
 	GetVotingPower() uint64
 	GetActiveStat() bool

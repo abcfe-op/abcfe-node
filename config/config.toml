@@ -3,6 +3,7 @@ level = "local"
 serviceName = "abcfe-node"
 port = 3000
 mode = "boot"
+version = "v1.0"
 
 [logInfo]
 path = "../../log/syslogs/"

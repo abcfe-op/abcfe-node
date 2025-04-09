@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/abcfe/abcfe-node/config"
 	proto "github.com/abcfe/abcfe-node/protocol"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -13,17 +14,24 @@ type BlockChain struct {
 	LatestHeight    uint64
 	LatestBlockHash string
 	db              *leveldb.DB
+	cfg             *config.Config
+	mempool         *Mempool
 	mu              sync.RWMutex // 쓰기가 없는 경우, 읽기 고루틴이 여러개 접근 가능
 }
 
-func NewChainState(db *leveldb.DB) (*BlockChain, error) {
+func NewChainState(db *leveldb.DB, cfg *config.Config) (*BlockChain, error) {
 	bc := &BlockChain{
-		db: db,
+		db:  db,
+		cfg: cfg,
 	}
 
 	if err := bc.LoadChainDB(); err != nil {
 		return nil, err
 	}
+
+	// TODO 로드할 수 있을경우 멤풀은?
+	// 공유 받아야하나 일단 초기화
+	bc.mempool = NewMempool()
 
 	return bc, nil
 }
