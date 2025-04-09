@@ -15,7 +15,6 @@ type Staker struct {
 }
 
 func GetStakers(db *leveldb.DB) ([]string, error) {
-	// db
 	key := []byte(protocol.PrefixStaker)
 	data, err := db.Get(key, nil)
 	if err != nil {

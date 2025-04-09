@@ -13,6 +13,7 @@ type Common struct {
 	ServiceName string
 	Port        int
 	Mode        string // boot, validator, sentry
+	Version     string // protocol v1.0
 }
 
 type LogInfo struct {

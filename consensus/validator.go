@@ -1,19 +1,21 @@
 package consensus
 
-import "github.com/abcfe/abcfe-node/core"
+import (
+	prt "github.com/abcfe/abcfe-node/protocol"
+)
 
 type Validator struct {
-	Address     core.Address `json:"address"`
-	PublicKey   []byte       `json:"publicKey"`
-	VotingPower uint64       `json:"votingPower"`
-	IsActive    bool         `json:"isActive"`
+	Address     prt.Address `json:"address"`
+	PublicKey   []byte      `json:"publicKey"`
+	VotingPower uint64      `json:"votingPower"`
+	IsActive    bool        `json:"isActive"`
 }
 
 // Block Consensus Data 직렬화
 
 // Block Consesnus Data 역직렬화
 
-func (v *Validator) GetAddress() core.Address {
+func (v *Validator) GetAddress() prt.Address {
 	return v.Address
 }
 
@@ -27,4 +29,12 @@ func (v *Validator) GetVotingPower() uint64 {
 
 func (v *Validator) GetActiveStat() bool {
 	return v.IsActive
+}
+
+func (v *Validator) SignBlock() {
+
+}
+
+func (v *Validator) ValidateBlock() {
+
 }

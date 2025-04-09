@@ -27,7 +27,6 @@ const (
 	PrefixAccountTx     = "acc:tx:"      // 지갑 주소 - 트랜잭션 해시 값
 	PrefixAccountTxTo   = "acc:tx:to:"   // 지갑 주소 - 수신자에 해당 되는 트랜잭션
 	PrefixAccountTxFrom = "acc:tx:from:" // 지갑 주소 - 발신자에 해당 되는 트랜잭션
-	PrefixAccountUtox   = "acc:utxo:"    // 지갑 주소 - UTXO 해시값
 
 	// 컨센서스 관련 접두사
 	PrefixStakerInfo = "acc:staker:" // 지갑 주소 - 스테이킹 정보
