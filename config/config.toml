@@ -3,7 +3,6 @@ level = "local"
 serviceName = "abcfe-node"
 port = 3000
 mode = "boot"
-version = "v1.0"
 
 [logInfo]
 path = "../../log/syslogs/"
@@ -19,3 +18,7 @@ path = "../../resource/db/"
 
 [wallet]
 path = "../../resource/wallet"
+
+[version]
+protocol = "1.0.0"
+transaction = "1.0.0"

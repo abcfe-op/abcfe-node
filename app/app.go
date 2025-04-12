@@ -43,7 +43,7 @@ func New() (*App, error) {
 		logger.Error("Failed to load db: ", err)
 	}
 
-	bc, err := core.NewChainState(db)
+	bc, err := core.NewChainState(db, cfg)
 	if err != nil {
 		return nil, err
 	}

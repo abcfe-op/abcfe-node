@@ -13,7 +13,7 @@ type Common struct {
 	ServiceName string
 	Port        int
 	Mode        string // boot, validator, sentry
-	Version     string // protocol v1.0
+
 }
 
 type LogInfo struct {
@@ -34,11 +34,17 @@ type Wallet struct {
 	Path string
 }
 
+type Version struct {
+	Transaction string
+	Protocol    string
+}
+
 type Config struct {
 	Common  Common
 	LogInfo LogInfo
 	DB      DB
 	Wallet  Wallet
+	Version Version
 }
 
 func NewConfig(filepath string) (*Config, error) {

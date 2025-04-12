@@ -19,6 +19,7 @@ func NewAccountTx(address prt.Address, tx prt.Hash) {
 	// 있다면 추가하고 UpdatedAt 업데이트
 	// 없다면 json 형태로 생성 setAccount
 	// key:value로 저장
+	panic("Not Developed Yet")
 }
 
 func NewAccountTxTo(address prt.Address, tx prt.Hash) {
@@ -26,6 +27,7 @@ func NewAccountTxTo(address prt.Address, tx prt.Hash) {
 	// 있다면 추가하고 UpdatedAt 업데이트
 	// 없다면 json 형태로 생성 setAccount
 	// key:value로 저장
+	panic("Not Developed Yet")
 }
 
 func NewAccountTxFrom(address prt.Address, tx prt.Hash) {
@@ -33,6 +35,7 @@ func NewAccountTxFrom(address prt.Address, tx prt.Hash) {
 	// 있다면 추가하고 UpdatedAt 업데이트
 	// 없다면 json 형태로 생성 setAccount
 	// key:value로 저장
+	panic("Not Developed Yet")
 }
 
 func UpdAccountBalance(address prt.Address) {
@@ -41,6 +44,7 @@ func UpdAccountBalance(address prt.Address) {
 	// 있다면 balance와 UpdatedAt 업데이트
 	// 없다면 json 형태로 생성 setAccount
 	// key:value로 저장
+	panic("Not Developed Yet")
 }
 
 func UpdAccountStatus(address prt.Address, status string) {
@@ -48,4 +52,5 @@ func UpdAccountStatus(address prt.Address, status string) {
 	// 있다면 추가하고 UpdatedAt 업데이트
 	// 없다면 json 형태로 생성 setAccount
 	// key:value로 저장
+	panic("Not Developed Yet")
 }

@@ -31,7 +31,7 @@ type BlockHeader struct {
 
 func (p *BlockChain) setBlockHeader(height uint64, prevHash prt.Hash) *BlockHeader {
 	blkHeader := &BlockHeader{
-		Version:   p.cfg.Common.Version,
+		Version:   p.cfg.Version.Protocol,
 		Height:    height,
 		PrevHash:  prevHash,
 		Timestamp: time.Now().Unix(),
@@ -56,6 +56,10 @@ func (p *BlockChain) SetBlock(prevHash prt.Hash, height uint64) *Block {
 	return block
 }
 
-func GetBlock(height uint64) {
+func GetBlock(height uint64) (*Block, error) {
+	panic("Not Developed Yet")
+}
 
+func ValidateBlock(block Block) (bool, error) {
+	panic("Not Developed Yet")
 }
