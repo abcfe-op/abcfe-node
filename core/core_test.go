@@ -17,7 +17,7 @@ func setTestTransaction() *Transaction {
 		OutputIndex: 0,
 		Signature:   prt.Signature{}, // 빈 서명
 		PublicKey:   []byte("Test PubKey"),
-		Sequence:    1,
+		// Sequence:    1,
 	}
 
 	// 출력 생성

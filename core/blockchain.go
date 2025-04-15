@@ -40,7 +40,7 @@ func (p *BlockChain) LoadChainDB() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	heightBytes, err := p.db.Get([]byte(proto.PrefixLatestHeight), nil)
+	heightBytes, err := p.db.Get([]byte(proto.PrefixMetaHeight), nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return fmt.Errorf("failed to load latest height: %w", err)
 	}
@@ -57,7 +57,7 @@ func (p *BlockChain) LoadChainDB() error {
 	}
 	p.LatestHeight = height
 
-	blkHashBytes, err := p.db.Get([]byte(proto.PrefixLatestBlockHash+string(heightBytes)), nil)
+	blkHashBytes, err := p.db.Get([]byte(proto.PrefixMetaBlockHash+string(heightBytes)), nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return fmt.Errorf("failed to load latest block hash: %w", err)
 	}
@@ -126,14 +126,14 @@ func (p *BlockChain) UpdateChainState(height uint64, blockHash string) error {
 	// db batch update
 	batch := new(leveldb.Batch)
 
-	heightKey := []byte(proto.PrefixLatestHeight)
+	heightKey := []byte(proto.PrefixMetaHeight)
 	batch.Put(heightKey, []byte(fmt.Sprintf("%d", height)))
 
-	blkHashKey := []byte(proto.PrefixLatestBlockHash)
+	blkHashKey := []byte(proto.PrefixMetaBlockHash)
 	batch.Put(blkHashKey, []byte(blockHash))
 
 	// height - hash mapping
-	heightToHashKey := []byte(fmt.Sprintf("%s%d", proto.PrefixBlockHeight, height))
+	heightToHashKey := []byte(fmt.Sprintf("%s%d", proto.PrefixMetaHeight, height))
 	batch.Put(heightToHashKey, []byte(blockHash))
 
 	// batch write excute
