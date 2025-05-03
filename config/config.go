@@ -39,12 +39,18 @@ type Version struct {
 	Protocol    string
 }
 
+type Genesis struct {
+	SystemAddresses []string `toml:"SystemAddresses"`
+	SystemBalances  []uint64 `toml:"SystemBalances"`
+}
+
 type Config struct {
 	Common  Common
 	LogInfo LogInfo
 	DB      DB
 	Wallet  Wallet
 	Version Version
+	Genesis Genesis
 }
 
 func NewConfig(filepath string) (*Config, error) {

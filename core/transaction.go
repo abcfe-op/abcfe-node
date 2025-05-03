@@ -19,6 +19,7 @@ type Transaction struct {
 
 	Memo string `json:"memo"` // 트랜잭션 메모 (inputData 대체)
 	Data []byte `json:"data"` // 임의 데이터 (스마트 컨트랙트 호출 등)
+	// Signature // TODO
 }
 
 type TxInput struct {
