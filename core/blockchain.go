@@ -21,17 +21,16 @@ type BlockChain struct {
 
 func NewChainState(db *leveldb.DB, cfg *config.Config) (*BlockChain, error) {
 	bc := &BlockChain{
-		db:  db,
-		cfg: cfg,
+		db:      db,
+		cfg:     cfg,
+		mempool: NewMempool(),
 	}
 
 	// if err := bc.LoadChainDB(); err != nil {
 	// 	return nil, err
 	// }
 
-	// TODO 로드할 수 있을경우 멤풀은?
-	// 공유 받아야하나 일단 초기화
-	bc.mempool = NewMempool()
+	// bc.AddBlock()
 
 	return bc, nil
 }

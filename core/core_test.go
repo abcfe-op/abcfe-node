@@ -123,3 +123,181 @@ func TestSetBlock(t *testing.T) {
 
 	fmt.Println(block)
 }
+
+// func TestAddBlock(t *testing.T) {
+// 	// mempool init
+// 	mempool := NewMempool()
+
+// 	// tx add
+// 	numTxs := 3
+// 	for i := 0; i < numTxs; i++ {
+// 		// tx set
+// 		tx := setTestTransaction()
+
+// 		// set unique tx.ID
+// 		copy(tx.ID[:], []byte{byte(i), byte(i + 1), byte(i + 2)})
+
+// 		// tx add to mempool
+// 		if err := mempool.NewTranaction(tx); err != nil {
+// 			fmt.Println(err)
+// 		}
+// 	}
+
+// 	// test height
+// 	height := uint64(1231)
+
+// 	// test previous hash
+// 	var prevHash prt.Hash
+// 	copy(prevHash[:], []byte("0x1230000000000000012345678900")) // 32바이트 주소
+
+// 	// set block header
+// 	blkHeader := &BlockHeader{
+// 		Version:   "1.0",
+// 		Height:    height,
+// 		PrevHash:  prevHash,
+// 		Timestamp: time.Now().Unix(),
+// 	}
+
+// 	// set block
+// 	// get tx from mempool
+// 	txs := mempool.GetTxs()
+
+// 	block := &Block{
+// 		Header:       *blkHeader,
+// 		Transactions: txs,
+// 	}
+
+// 	blkHash := utils.Hash(block)
+// 	block.Hash = blkHash
+
+// 	// block serialization
+// 	blockBytes, err := utils.SerializeData(block, utils.SerializationFormatGob)
+// 	if err != nil {
+// 		fmt.Println("here %w", err)
+// 	}
+
+// 	// db batch process ready
+// 	batch := new(leveldb.Batch)
+
+// 	// block hash - block data mapping
+// 	blockHashKey := utils.GetBlockHashKey(prt.PrefixBlock, block.Hash)
+// 	batch.Put(blockHashKey, blockBytes)
+
+// 	// block height - block hash mapping
+// 	heightKey := utils.GetBlockHeightKey(prt.PrefixBlockByHeight, block.Header.Height)
+// 	batch.Put(heightKey, []byte(utils.HashToString(block.Hash)))
+
+// 	db := chain.GetDB()
+
+// 	// batch excute
+// 	if err := p.db.Write(batch, nil); err != nil {
+// 		return false, fmt.Errorf("failed to write batch: %w", err)
+// 	}
+
+// 	return true, nil
+// }
+
+func TestSetGenesisBlock(t *testing.T) {
+	var defaultPrevHash prt.Hash
+
+	for i := range defaultPrevHash {
+		defaultPrevHash[i] = 0x00
+	}
+
+	blkHeader := &BlockHeader{
+		Version:   "v0.1",
+		Height:    0,
+		PrevHash:  defaultPrevHash,
+		Timestamp: time.Now().Unix(),
+	}
+
+	txIns := []*TxInput{}
+	txOuts := []*TxOutput{}
+
+	// 배열 초기화 - 올바른 문법으로 수정
+	systemAddrs := []string{"ABCFEABCFEABCFEABCFEABCFEABCFEABCFEABCFE", "0000000000000000000000000000000000000000"}
+	systemBals := []uint64{10000, 3300000}
+
+	if len(systemAddrs) != len(systemBals) {
+		fmt.Println("system address and balance count mismatch")
+	}
+
+	for i, systemAddr := range systemAddrs {
+		addr, err := utils.StringToAddress(systemAddr)
+		if err != nil {
+			fmt.Println("failed to convert between address and string: ", err)
+		}
+
+		output := &TxOutput{
+			Address: addr,
+			Amount:  systemBals[i],
+			TxType:  TxTypeGeneral,
+		}
+		txOuts = append(txOuts, output)
+	}
+
+	txs := []*Transaction{
+		{
+			Version:   "2.1",
+			Timestamp: time.Now().Unix(),
+			Inputs:    txIns,
+			Outputs:   txOuts,
+			Memo:      "ABCFE Chain Genesis Block",
+		},
+	}
+
+	// TODO 서명 포함하고 그 이후 ID를 만들어야함
+
+	for i, tx := range txs {
+		txHash := utils.Hash(tx)
+		txs[i].ID = txHash
+	}
+
+	block := &Block{
+		Header:       *blkHeader,
+		Transactions: txs,
+	}
+	block.Hash = utils.Hash(block)
+
+	fmt.Println("Genesis Block: ", block)
+}
+
+// func setTestGenesisTxs() ([]*Transaction, error) {
+// 	txIns := []*TxInput{}
+// 	txOuts := []*TxOutput{}
+
+// 	// 배열 초기화 - 올바른 문법으로 수정
+// 	systemAddrs := []string{"0xABCFEABCFEABCFEABCFEABCFEABCFE"}
+// 	systemBals := []uint64{10000}
+
+// 	if len(systemAddrs) != len(systemBals) {
+// 		return nil, fmt.Errorf("system address and balance count mismatch")
+
+// 	}
+
+// 	for i, systemAddr := range systemAddrs {
+// 		addr, err := utils.StringToAddress(systemAddr)
+// 		if err != nil {
+// 			return nil, fmt.Errorf("failed to convert between address and string")
+// 		}
+
+// 		output := &TxOutput{
+// 			Address: addr,
+// 			Amount:  systemBals[i],
+// 			TxType:  TxTypeGeneral,
+// 		}
+// 		txOuts = append(txOuts, output)
+// 	}
+
+// 	txs := []*Transaction{
+// 		{
+// 			Version:   "2.1",
+// 			Timestamp: time.Now().Unix(),
+// 			Inputs:    txIns,
+// 			Outputs:   txOuts,
+// 			Memo:      "ABCFE Chain Genesis Block",
+// 		},
+// 	}
+
+// 	return txs, nil
+// }

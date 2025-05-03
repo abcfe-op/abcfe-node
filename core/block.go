@@ -1,10 +1,12 @@
 package core
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/abcfe/abcfe-node/common/utils"
 	prt "github.com/abcfe/abcfe-node/protocol"
+	"github.com/syndtr/goleveldb/leveldb"
 )
 
 type Block struct {
@@ -45,21 +47,80 @@ func (p *BlockChain) SetBlock(prevHash prt.Hash, height uint64) *Block {
 	// 메모리 풀에서 트랜잭션 가져오기
 	txs := p.mempool.GetTxs()
 
-	block := &Block{
+	blk := &Block{
 		Header:       *blkHeader,
 		Transactions: txs,
 	}
 
-	blkHash := utils.Hash(block)
-	block.Hash = blkHash
+	blkHash := utils.Hash(blk)
+	blk.Hash = blkHash
 
-	return block
+	return blk
 }
 
-func GetBlock(height uint64) (*Block, error) {
+func (p *BlockChain) AddBlock(blk Block) (bool, error) {
+	// block serialization
+	blkBytes, err := utils.SerializeData(blk, utils.SerializationFormatGob)
+	if err != nil {
+		return false, fmt.Errorf("failed to block serialization.")
+	}
+
+	// db batch process ready
+	batch := new(leveldb.Batch)
+
+	// block hash - block data mapping
+	blkHashKey := utils.GetBlockHashKey(prt.PrefixBlock, blk.Hash)
+	batch.Put(blkHashKey, blkBytes)
+
+	// block height - block hash mapping
+	heightKey := utils.GetBlockHeightKey(prt.PrefixBlockByHeight, blk.Header.Height)
+	batch.Put(heightKey, []byte(utils.HashToString(blk.Hash)))
+
+	// TODO: transaction mapping
+
+	// chain status update
+	if blk.Header.Height > p.LatestHeight {
+		if err := p.UpdateChainState(blk.Header.Height, utils.HashToString(blk.Hash)); err != nil {
+			return false, fmt.Errorf("failed to update chain status: %w", err)
+		}
+	}
+
+	// batch excute
+	if err := p.db.Write(batch, nil); err != nil {
+		return false, fmt.Errorf("failed to write batch: %w", err)
+	}
+
+	return true, nil
+}
+
+func (p *BlockChain) GetBlock(height uint64) (*Block, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	heightKey := utils.GetBlockHeightKey(prt.PrefixBlockByHeight, height)
+	blkBytes, err := p.db.Get(heightKey, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get block data from db: %w", err)
+	}
+
+	// block data deserialization
+	var block Block
+	if err := utils.DeserializeData(blkBytes, &block, utils.SerializationFormatGob); err != nil {
+		return nil, fmt.Errorf("failed to deserialize block data: %w", err)
+	}
+
+	return &block, nil
+}
+
+func (p *BlockChain) ValidateBlock(block Block) (bool, error) {
 	panic("Not Developed Yet")
 }
 
-func ValidateBlock(block Block) (bool, error) {
-	panic("Not Developed Yet")
+// BlockToJSON 블록을 JSON 형식으로 변환
+func blockToJSON(block interface{}) ([]byte, error) {
+	return utils.SerializeData(block, utils.SerializationFormatJSON)
+}
+
+// JSONToBlock JSON 형식에서 블록으로 변환
+func jsonToBlock(data []byte, block interface{}) error {
+	return utils.DeserializeData(data, block, utils.SerializationFormatJSON)
 }
