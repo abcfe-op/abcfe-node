@@ -41,10 +41,12 @@ func New() (*App, error) {
 	db, err := storage.InitDB(cfg)
 	if err != nil {
 		logger.Error("Failed to load db: ", err)
+		return nil, err
 	}
 
 	bc, err := core.NewChainState(db, cfg)
 	if err != nil {
+		logger.Error("failed to initailze chain state: ", err)
 		return nil, err
 	}
 

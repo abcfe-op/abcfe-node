@@ -24,8 +24,5 @@ protocol = "1.0.0"
 transaction = "1.0.0"
 
 [genesis]
-SystemAddresses = ["
-"]
-SystemBalances = [
-  500000000
-]
+SystemAddresses = ["ABCFEABCFEABCFEABCFEABCFEABCFEABCFEABCFE"]
+SystemBalances = [500000000]

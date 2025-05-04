@@ -79,7 +79,7 @@ func (p *BlockChain) AddBlock(blk Block) (bool, error) {
 	// TODO: transaction mapping
 
 	// chain status update
-	if blk.Header.Height > p.LatestHeight {
+	if blk.Header.Height > p.LatestHeight || blk.Header.Height == 0 {
 		if err := p.UpdateChainState(blk.Header.Height, utils.HashToString(blk.Hash)); err != nil {
 			return false, fmt.Errorf("failed to update chain status: %w", err)
 		}
@@ -96,15 +96,32 @@ func (p *BlockChain) AddBlock(blk Block) (bool, error) {
 func (p *BlockChain) GetBlock(height uint64) (*Block, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
+
+	// block height -> block hash bytes
 	heightKey := utils.GetBlockHeightKey(prt.PrefixBlockByHeight, height)
-	blkBytes, err := p.db.Get(heightKey, nil)
+	blkHashBytes, err := p.db.Get(heightKey, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get block hash from db: %w", err)
+	}
+
+	// block hash bytes -> block hash string
+	var blkHash prt.Hash
+	blkHashStr := string(blkHashBytes)
+	blkHash, err = utils.StringToHash(blkHashStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert string to Hash type: %w", err)
+	}
+
+	// block hash string -> block data bytes
+	blkKey := utils.GetBlockHashKey(prt.PrefixBlock, blkHash)
+	blkDataBytes, err := p.db.Get(blkKey, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get block data from db: %w", err)
 	}
 
-	// block data deserialization
+	// block data bytes -> block data deserialization
 	var block Block
-	if err := utils.DeserializeData(blkBytes, &block, utils.SerializationFormatGob); err != nil {
+	if err := utils.DeserializeData(blkDataBytes, &block, utils.SerializationFormatGob); err != nil {
 		return nil, fmt.Errorf("failed to deserialize block data: %w", err)
 	}
 
