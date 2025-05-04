@@ -20,8 +20,16 @@ func main() {
 
 	app.SigHandler()
 
-	// Node 시작
 	logger.Info("Node start.")
+
+	// rest api start
+
+	// json-rpc start
+
+	// grpc start
+
+	// PoS start
+	// config 기준으로 역할 규정 (root, validator, sentry)
 
 	app.Wait()
 	logger.Info("Node terminated.")
