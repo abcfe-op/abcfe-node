@@ -19,6 +19,7 @@ type Transaction struct {
 
 	Memo string `json:"memo"` // 트랜잭션 메모 (inputData 대체)
 	Data []byte `json:"data"` // 임의 데이터 (스마트 컨트랙트 호출 등)
+	// Status // TODO
 	// Signature // TODO
 }
 
@@ -69,7 +70,7 @@ func (p *BlockChain) SetTx(from prt.Address, to prt.Address, amount uint64, memo
 }
 
 // tx input과 output을 구성
-func (p *BlockChain) setTxIOPair(utxos UTXOSet, from prt.Address, to prt.Address, amount uint64, txType uint8) (TxIOPair, error) {
+func (p *BlockChain) setTxIOPair(utxos UTXOSet, from prt.Address, to prt.Address, amount uint64, txType uint8) (*TxIOPair, error) {
 	var txInAndOut TxIOPair
 	var total uint64
 
@@ -88,7 +89,7 @@ func (p *BlockChain) setTxIOPair(utxos UTXOSet, from prt.Address, to prt.Address
 
 	// utxo 탈탈 털었는데도 돈이 부족하다면 에러
 	if total < amount {
-		return TxIOPair{}, fmt.Errorf("Not enough balance: required %d, balance %d", amount, total)
+		return nil, fmt.Errorf("Not enough balance: required %d, balance %d", amount, total)
 	}
 
 	// set tx out
@@ -102,7 +103,7 @@ func (p *BlockChain) setTxIOPair(utxos UTXOSet, from prt.Address, to prt.Address
 		txInAndOut.TxOuts = append(txInAndOut.TxOuts, txOut)
 	}
 
-	return txInAndOut, nil
+	return &txInAndOut, nil
 }
 
 func (p *BlockChain) setTxInput(txOutID prt.Hash, txOutIdx uint64, sig prt.Signature, pubKey []byte) *TxInput {
@@ -126,14 +127,120 @@ func (p *BlockChain) setTxOutput(toAddr prt.Address, amount uint64, txType uint8
 	return txOut
 }
 
-func (p *BlockChain) GetTx(height uint64, id prt.Hash) {
-	// prt.PrefixTx
+func (p *BlockChain) GetTx(txId prt.Hash) (*Transaction, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	key := utils.GetTxHashKey(txId)
+	txBytes, err := p.db.Get(key, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get block hash from db: %w", err)
+	}
+
+	// tx data bytes -> tx data deserialization
+	var tx Transaction
+	if err := utils.DeserializeData(txBytes, &tx, utils.SerializationFormatGob); err != nil {
+		return nil, fmt.Errorf("failed to deserialize block data: %w", err)
+	}
+
+	return &tx, nil
 }
 
-func (p *BlockChain) GetTxStatus(height uint64, id prt.Hash) {
-	// prt.PrefixTxStatus
+func (p *BlockChain) GetBlockHashByTxId(txId prt.Hash) (prt.Hash, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	// block height -> block hash bytes
+	key := utils.GetTxBlockHashKey(txId)
+	blkHashBytes, err := p.db.Get(key, nil)
+	if err != nil {
+		return prt.Hash{}, fmt.Errorf("failed to get block hash from db: %w", err)
+	}
+
+	// block hash bytes -> block hash string
+	var blkHash prt.Hash
+	blkHash = utils.BytesToHash(blkHashBytes)
+
+	return blkHash, nil
 }
 
-func (p *BlockChain) GetTxs(height uint64) {
-	// prt.PrefixTx
+// TODO
+// func (p *BlockChain) GetTxStatus(height uint64, id prt.Hash) {
+// prt.PrefixTxStatus
+// }
+
+func (p *BlockChain) GetInputTx(txId prt.Hash) ([]TxInput, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	key := utils.GetTxInputKey(txId, prt.WholeTxIdx)
+	txBytes, err := p.db.Get(key, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tx input data from db: %w", err)
+	}
+
+	// tx data bytes -> tx data deserialization
+	var txInputs []TxInput
+	if err := utils.DeserializeData(txBytes, &txInputs, utils.SerializationFormatGob); err != nil {
+		return nil, fmt.Errorf("failed to deserialize tx input data: %w", err)
+	}
+
+	return txInputs, nil
+}
+
+func (p *BlockChain) GetOutputTx(txId prt.Hash) ([]TxOutput, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	key := utils.GetTxOutputKey(txId, prt.WholeTxIdx)
+	txBytes, err := p.db.Get(key, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tx output data from db: %w", err)
+	}
+
+	// tx data bytes -> tx data deserialization
+	var txOutputs []TxOutput
+	if err := utils.DeserializeData(txBytes, &txOutputs, utils.SerializationFormatGob); err != nil {
+		return nil, fmt.Errorf("failed to deserialize tx output data: %w", err)
+	}
+
+	return txOutputs, nil
+}
+
+func (p *BlockChain) GetInputTxByIdx(txId prt.Hash, idx int) (*TxInput, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	key := utils.GetTxInputKey(txId, idx)
+	txBytes, err := p.db.Get(key, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tx input data from db: %w", err)
+	}
+
+	// tx data bytes -> tx data deserialization
+	var txInput TxInput
+	if err := utils.DeserializeData(txBytes, &txInput, utils.SerializationFormatGob); err != nil {
+		return nil, fmt.Errorf("failed to deserialize tx input data: %w", err)
+	}
+
+	return &txInput, nil
+}
+
+func (p *BlockChain) GetOutputTxByIdx(txId prt.Hash, idx int) (*TxOutput, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	key := utils.GetTxOutputKey(txId, idx)
+	txBytes, err := p.db.Get(key, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tx output data from db: %w", err)
+	}
+
+	// tx data bytes -> tx data deserialization
+	var txOutput TxOutput
+	if err := utils.DeserializeData(txBytes, &txOutput, utils.SerializationFormatGob); err != nil {
+		return nil, fmt.Errorf("failed to deserialize tx output data: %w", err)
+	}
+
+	return &txOutput, nil
 }
