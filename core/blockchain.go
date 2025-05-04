@@ -26,11 +26,32 @@ func NewChainState(db *leveldb.DB, cfg *config.Config) (*BlockChain, error) {
 		mempool: NewMempool(),
 	}
 
-	// if err := bc.LoadChainDB(); err != nil {
-	// 	return nil, err
-	// }
+	if err := bc.LoadChainDB(); err != nil {
+		return nil, err
+	}
+	if bc.LatestHeight == 0 {
+		genesisBlk, err := bc.SetGenesisBlock()
+		if err != nil {
+			return nil, err
+		}
 
-	// bc.AddBlock()
+		result, err := bc.AddBlock(*genesisBlk)
+		if err != nil {
+			return nil, err
+		}
+		if !result {
+			return nil, fmt.Errorf("failed to add genesis block to chain")
+		}
+	}
+
+	// var height uint64
+	// height = 0
+
+	// bb, err := bc.GetBlock(0)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(bb)
 
 	return bc, nil
 }
