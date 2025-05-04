@@ -4,6 +4,10 @@ const (
 	MaxTxsPerBlock = 100
 )
 
+const (
+	WholeTxIdx = -1
+)
+
 // type DefaultTxHash Hash
 
 // const (

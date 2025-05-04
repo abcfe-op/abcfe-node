@@ -21,12 +21,12 @@ func HashToString(hash prt.Hash) string {
 func StringToHash(str string) (prt.Hash, error) {
 	bytes, err := hex.DecodeString(str)
 	if err != nil {
-		return prt.Hash{}, fmt.Errorf("잘못된 해시 문자열: %v", err)
+		return prt.Hash{}, fmt.Errorf("invalid hash string: %v", err)
 	}
 
 	// 해시 길이 검증
 	if len(bytes) != 32 {
-		return prt.Hash{}, fmt.Errorf("잘못된 해시 길이: %d (32바이트 필요)", len(bytes))
+		return prt.Hash{}, fmt.Errorf("invalid hash lenght: %d (need 32 bytes)", len(bytes))
 	}
 
 	var hash prt.Hash
