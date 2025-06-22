@@ -3,6 +3,7 @@ module github.com/abcfe/abcfe-node
 go 1.23.3
 
 require (
+	github.com/gorilla/mux v1.8.1
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/naoina/toml v0.1.1
 	github.com/syndtr/goleveldb v1.0.0

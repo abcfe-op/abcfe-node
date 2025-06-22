@@ -1,6 +1,7 @@
 package core
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"time"
 
@@ -169,7 +170,7 @@ func (p *BlockChain) GetBlockHashByTxId(txId prt.Hash) (prt.Hash, error) {
 // prt.PrefixTxStatus
 // }
 
-func (p *BlockChain) GetInputTx(txId prt.Hash) ([]TxInput, error) {
+func (p *BlockChain) GetInputTx(txId prt.Hash) (*[]TxInput, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -185,10 +186,10 @@ func (p *BlockChain) GetInputTx(txId prt.Hash) ([]TxInput, error) {
 		return nil, fmt.Errorf("failed to deserialize tx input data: %w", err)
 	}
 
-	return txInputs, nil
+	return &txInputs, nil
 }
 
-func (p *BlockChain) GetOutputTx(txId prt.Hash) ([]TxOutput, error) {
+func (p *BlockChain) GetOutputTx(txId prt.Hash) (*[]TxOutput, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -204,7 +205,7 @@ func (p *BlockChain) GetOutputTx(txId prt.Hash) ([]TxOutput, error) {
 		return nil, fmt.Errorf("failed to deserialize tx output data: %w", err)
 	}
 
-	return txOutputs, nil
+	return &txOutputs, nil
 }
 
 func (p *BlockChain) GetInputTxByIdx(txId prt.Hash, idx int) (*TxInput, error) {
@@ -243,4 +244,39 @@ func (p *BlockChain) GetOutputTxByIdx(txId prt.Hash, idx int) (*TxOutput, error)
 	}
 
 	return &txOutput, nil
+}
+
+func calculateMerkleRoot(txs []*Transaction) prt.Hash {
+	if len(txs) == 0 {
+		return prt.Hash{} // 빈 해시 반환
+	}
+
+	// 각 트랜잭션을 해시
+	hashes := make([]prt.Hash, len(txs))
+	for i, tx := range txs {
+		hashes[i] = utils.Hash(tx)
+	}
+
+	// 머클 트리 계산
+	return buildMerkleTree(hashes)
+}
+
+func buildMerkleTree(hashes []prt.Hash) prt.Hash {
+	if len(hashes) == 1 {
+		return hashes[0]
+	}
+
+	// 짝수 개로 맞추기
+	if len(hashes)%2 != 0 {
+		hashes = append(hashes, hashes[len(hashes)-1])
+	}
+
+	// 다음 레벨 계산
+	nextLevel := make([]prt.Hash, len(hashes)/2)
+	for i := 0; i < len(hashes); i += 2 {
+		combined := append(hashes[i][:], hashes[i+1][:]...)
+		nextLevel[i/2] = sha256.Sum256(combined)
+	}
+
+	return buildMerkleTree(nextLevel)
 }

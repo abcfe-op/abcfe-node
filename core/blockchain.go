@@ -136,9 +136,6 @@ func (p *BlockChain) UpdateChainState(height uint64, blockHash string) error {
 		return nil
 	}
 
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
 	// memory update
 	p.LatestBlockHash = blockHash
 	p.LatestHeight = height
