@@ -15,14 +15,21 @@ type DB struct {
 func InitDB(cfg *config.Config) (*leveldb.DB, error) {
 	dbName := fmt.Sprintf("leveldb_%d.db", cfg.Common.Port)
 	dbPath := fmt.Sprintf("%s%s", cfg.DB.Path, dbName)
+
+	// DB 디렉토리가 없으면 생성
 	db, err := leveldb.OpenFile(dbPath, nil)
 	if err != nil {
-		log.Error("Failed to load db: ", err)
+		log.Error("Failed to open db: ", err)
+		return nil, err
 	}
 
+	log.Info("Successfully opened db: ", dbPath)
 	return db, nil
 }
 
-func Close() {
-
+func (d *DB) Close() error {
+	if d.db != nil {
+		return d.db.Close()
+	}
+	return nil
 }

@@ -163,3 +163,11 @@ func Uint64ToBytes(value uint64) []byte {
 func BytesToUint64(data []byte) uint64 {
 	return binary.BigEndian.Uint64(data)
 }
+
+func MarshalJSON(hash prt.Hash) ([]byte, error) {
+	return json.Marshal(hex.EncodeToString(hash[:]))
+}
+
+func UnmarshalJSON(data []byte, hash *prt.Hash) error {
+	return json.Unmarshal(data, hash)
+}

@@ -22,11 +22,10 @@ type Block struct {
 }
 
 type BlockHeader struct {
-	Version  string   `json:"version"`  // 블록체인 프로토콜 버전
-	Height   uint64   `json:"height"`   // 블록 높이 (uint64로 변경)
-	PrevHash prt.Hash `json:"prevHash"` // 이전 블록 해시
-	// TODO: 고도화 시작시
-	// MerkleRoot Hash   `json:"merkleRoot"` // 트랜잭션 머클 루트
+	Version    string   `json:"version"`    // 블록체인 프로토콜 버전
+	Height     uint64   `json:"height"`     // 블록 높이 (uint64로 변경)
+	PrevHash   prt.Hash `json:"prevHash"`   // 이전 블록 해시
+	MerkleRoot prt.Hash `json:"merkleRoot"` // 트랜잭션 머클 루트
 	// StateRoot  Hash   `json:"stateRoot"`  // 상태 머클 루트 (UTXO 또는 계정 상태)
 	Timestamp int64 `json:"timestamp"` // 블록 생성 시간 (Unix 타임스탬프)
 }
@@ -104,7 +103,7 @@ func (p *BlockChain) saveBlockData(batch *leveldb.Batch, blk Block) error {
 
 	// block height - block hash mapping
 	heightKey := utils.GetBlockHeightKey(blk.Header.Height)
-	batch.Put(heightKey, []byte(utils.HashToString(blk.Hash)))
+	batch.Put(heightKey, blk.Hash[:])
 
 	return nil
 }
@@ -168,7 +167,7 @@ func (p *BlockChain) saveTxData(batch *leveldb.Batch, blk Block) error {
 }
 
 // block height -> block data
-func (p *BlockChain) GetBlock(height uint64) (*Block, error) {
+func (p *BlockChain) GetBlockByHeight(height uint64) (*Block, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -181,13 +180,34 @@ func (p *BlockChain) GetBlock(height uint64) (*Block, error) {
 
 	// block hash bytes -> block hash string
 	var blkHash prt.Hash
-	blkHash = utils.BytesToHash(blkHashBytes)
+	copy(blkHash[:], blkHashBytes)
 
 	// block hash string -> block data bytes
 	blkKey := utils.GetBlockHashKey(blkHash)
 	blkDataBytes, err := p.db.Get(blkKey, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get block data from db: %w", err)
+	}
+
+	// block data bytes -> block data deserialization
+	var block Block
+	if err := utils.DeserializeData(blkDataBytes, &block, utils.SerializationFormatGob); err != nil {
+		return nil, fmt.Errorf("failed to deserialize block data: %w", err)
+	}
+
+	return &block, nil
+}
+
+// block hash -> block data
+func (p *BlockChain) GetBlockByHash(hash prt.Hash) (*Block, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	// block hash -> block hash bytes
+	blkHashKey := utils.GetBlockHashKey(hash)
+	blkDataBytes, err := p.db.Get(blkHashKey, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get block hash from db: %w", err)
 	}
 
 	// block data bytes -> block data deserialization

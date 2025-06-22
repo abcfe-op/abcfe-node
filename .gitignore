@@ -1,0 +1,54 @@
+# Go 관련
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# IDE 관련
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS 관련
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 빌드 결과물
+bin/
+dist/
+build/
+
+# 로그 파일들 (폴더는 유지, 내용물만 무시)
+log/*/
+log/*.log
+log/*.log.*
+
+# 리소스 파일들 (폴더는 유지, 내용물만 무시)
+resource/*/
+resource/db/*
+resource/wallet/*
+
+# 임시 파일들
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# 환경 변수 파일
+.env
+.env.local
+.env.production
+
+# 디버그 파일들
+__debug_bin* 
