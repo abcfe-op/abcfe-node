@@ -44,7 +44,7 @@ type TxIOPair struct {
 	TxOuts []*TxOutput `json:"txOuts"`
 }
 
-func (p *BlockChain) SetTx(from prt.Address, to prt.Address, amount uint64, memo string, data []byte, txType uint8) (*Transaction, error) {
+func (p *BlockChain) SetTransferTx(from prt.Address, to prt.Address, amount uint64, memo string, data []byte, txType uint8) (*Transaction, error) {
 	utxos := GetUtxos(from)
 	if CalBalanceUtxo(utxos) < amount {
 		return &Transaction{}, fmt.Errorf("not enough balance")
