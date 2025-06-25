@@ -65,14 +65,27 @@ func (p *BlockChain) AddBlock(blk Block) (bool, error) {
 	// db batch process ready
 	batch := new(leveldb.Batch)
 
+	// block data save
 	err := p.saveBlockData(batch, blk)
 	if err != nil {
 		return false, fmt.Errorf("failed to save block into db: %w", err)
 	}
 
+	// tx data save
 	err = p.saveTxData(batch, blk)
 	if err != nil {
 		return false, fmt.Errorf("failed to save tx into db: %w", err)
+	}
+
+	// utxo data save
+	err = p.SaveUtxoData(batch, blk)
+	if err != nil {
+		return false, fmt.Errorf("failed to save utxo into db: %w", err)
+	}
+
+	// batch excute
+	if err := p.db.Write(batch, nil); err != nil {
+		return false, fmt.Errorf("failed to write batch: %w", err)
 	}
 
 	// chain status update
@@ -80,11 +93,6 @@ func (p *BlockChain) AddBlock(blk Block) (bool, error) {
 		if err := p.UpdateChainState(blk.Header.Height, utils.HashToString(blk.Hash)); err != nil {
 			return false, fmt.Errorf("failed to update chain status: %w", err)
 		}
-	}
-
-	// batch excute
-	if err := p.db.Write(batch, nil); err != nil {
-		return false, fmt.Errorf("failed to write batch: %w", err)
 	}
 
 	return true, nil

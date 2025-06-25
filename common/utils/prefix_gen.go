@@ -62,3 +62,24 @@ func GetTxOutputKey(txHash prt.Hash, index int) []byte {
 	}
 	return []byte(prt.PrefixTxOut + txHashStr) // 모든 출력 데이터 접근
 }
+
+// "utxo:txhash:outputindex"
+func GetUtxoKey(txHash prt.Hash, outputIndex int) []byte {
+	txHashStr := HashToString(txHash)
+	utxoKey := []byte(prt.PrefixUtxo + txHashStr + ":" + strconv.Itoa(outputIndex))
+	return utxoKey
+}
+
+// "utxo:addr:"
+func GetUtxoListKey(address prt.Address) []byte {
+	addressStr := AddressToString(address)
+	utxoListKey := []byte(prt.PrefixUtxoList + addressStr)
+	return utxoListKey
+}
+
+// "utxo:bal:"
+func GetUtxoBalanceKey(address prt.Address) []byte {
+	addressStr := AddressToString(address)
+	utxoBalanceKey := []byte(prt.PrefixUtxoBalance + addressStr)
+	return utxoBalanceKey
+}

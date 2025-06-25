@@ -28,15 +28,16 @@ const (
 	PrefixTxOut = "tx:out:"
 
 	// UTXO 관련 접두사
-	PrefixUtxo          = "utxo:"      // utxo:트랜잭션해시:인덱스 = UTXO 데이터
-	PrefixUtxoByAddress = "utxo:addr:" // utxo:addr:주소:트랜잭션해시:인덱스 = UTXO 데이터
+	PrefixUtxo        = "utxo:"      // utxo:트랜잭션해시:인덱스 = UTXO 데이터
+	PrefixUtxoList    = "utxo:addr:" // utxo:addr:주소 = UTXO 키 배열
+	PrefixUtxoBalance = "utxo:bal:"  // utxo:bal:주소 = 잔액
 
 	// 계정 관련 접두사
-	PrefixAccount         = "acc:"      // acc:계정주소 = 계정 데이터
-	PrefixAccountTxs      = "acc:txs:"  // acc:txs:계정주소 = 트랜잭션 해시 json-array
-	PrefixAccountReceived = "acc:recv:" // acc:recv:계정주소:인덱스 = []{트랜잭션 해시: index} (수신)
-	PrefixAccountSent     = "acc:sent:" // acc:sent:계정주소:인덱스 = []트랜잭션 해시 (발신)
+	PrefixAddress         = "addr:"      // addr:계정주소 = 계정 데이터
+	PrefixAddressTxs      = "addr:txs:"  // addr:txs:계정주소 = 트랜잭션 해시 json-array
+	PrefixAddressReceived = "addr:recv:" // addr:recv:계정주소:인덱스 = []{트랜잭션 해시: index} (수신)
+	PrefixAddressSent     = "addr:sent:" // addr:sent:계정주소:인덱스 = []트랜잭션 해시 (발신)
 
 	// 컨센서스 관련 접두사
-	PrefixStakerInfo = "acc:staker:" // 지갑 주소 - 스테이킹 정보
+	PrefixStakerInfo = "staker:" // 지갑 주소 - 스테이킹 정보
 )
