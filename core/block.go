@@ -78,7 +78,7 @@ func (p *BlockChain) AddBlock(blk Block) (bool, error) {
 	}
 
 	// utxo data save
-	err = p.SaveUtxoData(batch, blk)
+	err = p.UpdateUtxo(batch, blk)
 	if err != nil {
 		return false, fmt.Errorf("failed to save utxo into db: %w", err)
 	}
