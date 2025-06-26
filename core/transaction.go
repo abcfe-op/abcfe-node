@@ -45,8 +45,11 @@ type TxIOPair struct {
 }
 
 func (p *BlockChain) SetTransferTx(from prt.Address, to prt.Address, amount uint64, memo string, data []byte, txType uint8) (*Transaction, error) {
-	utxos := GetUtxos(from)
-	if CalBalanceUtxo(utxos) < amount {
+	utxos, err := p.GetUtxoList(from)
+	if err != nil {
+		return nil, err
+	}
+	if p.CalBalanceUtxo(utxos) < amount {
 		return &Transaction{}, fmt.Errorf("not enough balance")
 	}
 
@@ -71,7 +74,7 @@ func (p *BlockChain) SetTransferTx(from prt.Address, to prt.Address, amount uint
 }
 
 // tx input과 output을 구성
-func (p *BlockChain) setTxIOPair(utxos UTXOSet, from prt.Address, to prt.Address, amount uint64, txType uint8) (*TxIOPair, error) {
+func (p *BlockChain) setTxIOPair(utxos []*UTXO, from prt.Address, to prt.Address, amount uint64, txType uint8) (*TxIOPair, error) {
 	var txInAndOut TxIOPair
 	var total uint64
 

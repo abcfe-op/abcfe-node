@@ -29,7 +29,7 @@ func NewChainState(db *leveldb.DB, cfg *config.Config) (*BlockChain, error) {
 	if err := bc.LoadChainDB(); err != nil {
 		return nil, err
 	}
-	if bc.LatestHeight == 0 {
+	if bc.LatestHeight == 0 && bc.LatestBlockHash == "" {
 		genesisBlk, err := bc.SetGenesisBlock()
 		if err != nil {
 			return nil, err
@@ -77,7 +77,7 @@ func (p *BlockChain) LoadChainDB() error {
 	}
 	p.LatestHeight = height
 
-	blkHashBytes, err := p.db.Get([]byte(proto.PrefixMetaBlockHash+string(heightBytes)), nil)
+	blkHashBytes, err := p.db.Get([]byte(proto.PrefixMetaBlockHash), nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return fmt.Errorf("failed to load latest block hash: %w", err)
 	}
