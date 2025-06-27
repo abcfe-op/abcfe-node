@@ -24,15 +24,14 @@ func setupRouter(blockchain *core.BlockChain) http.Handler {
 	api.HandleFunc("/status", GetStatus(blockchain)).Methods("GET")
 
 	// 블록 관련 API
+	// api.HandleFunc("/block", ComposeAndAddBlock(blockchain)).Methods("POST") // 테스트 전용 블록 구성 및 블록 추가 (검증은 없음)
 	api.HandleFunc("/block/latest", GetLatestBlock(blockchain)).Methods("GET")
 	api.HandleFunc("/block/{height}", GetBlockByHeight(blockchain)).Methods("GET")
 	api.HandleFunc("/block/hash/{hash}", GetBlockByHash(blockchain)).Methods("GET")
 
-	// api.HandleFunc("/block", AddBlock(blockchain)).Methods("POST")
-
 	// 트랜잭션 관련 API
+	// api.HandleFunc("/tx", SubmitTx(blockchain)).Methods("POST") // tx to mempool
 	api.HandleFunc("/tx/{txid}", GetTx(blockchain)).Methods("GET")
-	// api.HandleFunc("/tx", SubmitTx(blockchain)).Methods("POST")
 
 	// UTXO 관련 API
 	api.HandleFunc("/address/{address}/utxo", GetAddressUtxo(blockchain)).Methods("GET")

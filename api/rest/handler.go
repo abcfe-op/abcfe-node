@@ -10,23 +10,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// send response
-func sendResp(w http.ResponseWriter, statusCode int, data interface{}, err error) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-
-	response := RestResp{
-		Success: err == nil,
-		Data:    data,
-	}
-
-	if err != nil {
-		response.Error = err.Error()
-	}
-
-	json.NewEncoder(w).Encode(response)
-}
-
 // get home response
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	info := map[string]string{
@@ -201,6 +184,66 @@ func GetBalanceByUtxo(bc *core.BlockChain) http.HandlerFunc {
 		}
 		sendResp(w, http.StatusOK, response, nil)
 	}
+}
+
+// func SubmitTx(bc *core.BlockChain) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		var req SubmitTxReq // mock data
+// 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+// 			sendResp(w, http.StatusBadRequest, nil, err)
+// 			return
+// 		}
+
+// 		if err := bc.SubmitTx(req); err != nil {
+// 			sendResp(w, http.StatusInternalServerError, nil, err)
+// 			return
+// 		}
+
+// 		sendResp(w, http.StatusOK, true, nil)
+// 	}
+// }
+
+// func ComposeAndAddBlock(bc *core.BlockChain) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		var req ComposeAndAddBlockReq // mock data
+// 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+// 			sendResp(w, http.StatusBadRequest, nil, err)
+// 			return
+// 		}
+
+// 		// 블록 구성
+// 		blk, err := bc.ComposeBlock(req)
+// 		if err != nil {
+// 			sendResp(w, http.StatusInternalServerError, nil, err)
+// 			return
+// 		}
+
+// 		//
+// 		result, err := bc.AddBlock(blk)
+// 		if err != nil {
+// 			sendResp(w, http.StatusInternalServerError, nil, err)
+// 			return
+// 		}
+
+// 		sendResp(w, http.StatusOK, result, nil)
+// 	}
+// }
+
+// send response
+func sendResp(w http.ResponseWriter, statusCode int, data interface{}, err error) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	response := RestResp{
+		Success: err == nil,
+		Data:    data,
+	}
+
+	if err != nil {
+		response.Error = err.Error()
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
 
 // get block response

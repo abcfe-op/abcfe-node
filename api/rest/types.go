@@ -38,3 +38,14 @@ type TxResp struct {
 	Outputs   []interface{} `json:"outputs"`
 	Memo      string        `json:"memo"`
 }
+
+type SubmitTxReq struct {
+	From   string `json:"from"`
+	To     string `json:"to"`
+	Amount string `json:"amount"`
+}
+
+type ComposeAndAddBlockReq struct {
+	Proposer  string `json:"proposer"`
+	Validator string `json:"validator"`
+}
