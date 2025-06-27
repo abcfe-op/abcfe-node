@@ -11,7 +11,6 @@ import (
 
 type Block struct {
 	Header       BlockHeader    `json:"header"`       // 블록 헤더
-	Hash         prt.Hash       `json:"hash"`         // 블록 해시
 	Transactions []*Transaction `json:"transactions"` // 트랜잭션 목록
 
 	// TODO: Consensus 시작시
@@ -24,6 +23,7 @@ type Block struct {
 type BlockHeader struct {
 	Version    string   `json:"version"`    // 블록체인 프로토콜 버전
 	Height     uint64   `json:"height"`     // 블록 높이 (uint64로 변경)
+	Hash       prt.Hash `json:"hash"`       // 블록 해시
 	PrevHash   prt.Hash `json:"prevHash"`   // 이전 블록 해시
 	MerkleRoot prt.Hash `json:"merkleRoot"` // 트랜잭션 머클 루트
 	// StateRoot  Hash   `json:"stateRoot"`  // 상태 머클 루트 (UTXO 또는 계정 상태)
