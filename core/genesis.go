@@ -25,9 +25,9 @@ func (p *BlockChain) SetGenesisBlock() (*Block, error) {
 	merkleRoot := calculateMerkleRoot(txs)
 
 	blkHeader := &BlockHeader{
+		PrevHash:   defaultPrevHash,
 		Version:    p.cfg.Version.Protocol,
 		Height:     0,
-		PrevHash:   defaultPrevHash,
 		Timestamp:  time.Now().Unix(),
 		MerkleRoot: merkleRoot,
 	}
@@ -37,8 +37,8 @@ func (p *BlockChain) SetGenesisBlock() (*Block, error) {
 		Transactions: txs,
 	}
 
-	// 블록 해시는 블록 헤더만 해시화. 트랜잭션은 머클루트로 처리
-	block.Hash = utils.Hash(blkHeader)
+	blkHash := utils.Hash(block)
+	block.Header.Hash = blkHash
 
 	return block, nil
 }

@@ -255,13 +255,13 @@ func formatBlockResp(block *core.Block) (BlockResp, error) {
 
 	response := BlockResp{
 		Header: BlockHeaderResp{
+			Hash:       utils.HashToString(block.Header.Hash),
+			PrevHash:   utils.HashToString(block.Header.PrevHash),
 			Version:    block.Header.Version,
 			Height:     block.Header.Height,
-			PrevHash:   utils.HashToString(block.Header.PrevHash),
 			MerkleRoot: utils.HashToString(block.Header.MerkleRoot),
 			Timestamp:  block.Header.Timestamp,
 		},
-		Hash:         utils.HashToString(block.Hash),
 		Transactions: txDetails,
 	}
 

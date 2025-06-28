@@ -16,17 +16,17 @@ type BlockchainStatResp struct {
 // 블록 응답
 type BlockResp struct {
 	Header       BlockHeaderResp `json:"header"`
-	Hash         string          `json:"hash"`
 	Transactions []TxResp        `json:"transactions"` // 트랜잭션 ID 목록
 }
 
 type BlockHeaderResp struct {
+	Hash       string `json:"hash"`
+	PrevHash   string `json:"prevHash"`   // 이전 블록 해시
 	Version    string `json:"version"`    // 블록체인 프로토콜 버전
 	Height     uint64 `json:"height"`     // 블록 높이 (uint64로 변경)
-	PrevHash   string `json:"prevHash"`   // 이전 블록 해시
 	MerkleRoot string `json:"merkleRoot"` // 트랜잭션 머클 루트
+	Timestamp  int64  `json:"timestamp"`  // 블록 생성 시간 (Unix 타임스탬프)
 	// StateRoot  Hash   `json:"stateRoot"`  // 상태 머클 루트 (UTXO 또는 계정 상태)
-	Timestamp int64 `json:"timestamp"` // 블록 생성 시간 (Unix 타임스탬프)
 }
 
 // 트랜잭션 응답
