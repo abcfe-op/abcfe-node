@@ -42,7 +42,9 @@ type TxResp struct {
 type SubmitTxReq struct {
 	From   string `json:"from"`
 	To     string `json:"to"`
-	Amount string `json:"amount"`
+	Amount uint64 `json:"amount"`
+	Memo   string `json:"memo"`
+	Data   []byte `json:"data"`
 }
 
 type ComposeAndAddBlockReq struct {

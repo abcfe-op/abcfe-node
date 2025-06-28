@@ -249,6 +249,33 @@ func (p *BlockChain) GetOutputTxByIdx(txId prt.Hash, idx int) (*TxOutput, error)
 	return &txOutput, nil
 }
 
+func (p *BlockChain) SubmitTx(from, to prt.Address, amount uint64, memo string, data []byte, txType uint8) error {
+	// utxo 기반으로 밸런스 체크
+	utxoList, err := p.GetUtxoList(from)
+	if err != nil {
+		return fmt.Errorf("failed to get balance: %w", err)
+	}
+
+	// utxo
+	balance := p.CalBalanceUtxo(utxoList)
+	if balance < amount {
+		return fmt.Errorf("not enough balance. you have just %d", balance)
+	}
+
+	// set transaction
+	tx, err := p.SetTransferTx(from, to, amount, memo, data, txType)
+	if err != nil {
+		return fmt.Errorf("failed to set transaction: %w", err)
+	}
+
+	// mempool에 저장
+	if err := p.mempool.NewTranaction(tx); err != nil {
+		return fmt.Errorf("failed to save transaction in mempool: %w", err)
+	}
+
+	return nil
+}
+
 func calculateMerkleRoot(txs []*Transaction) prt.Hash {
 	if len(txs) == 0 {
 		return prt.Hash{} // 빈 해시 반환
