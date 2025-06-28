@@ -30,7 +30,7 @@ func setupRouter(blockchain *core.BlockChain) http.Handler {
 	api.HandleFunc("/block/hash/{hash}", GetBlockByHash(blockchain)).Methods("GET")
 
 	// 트랜잭션 관련 API
-	// api.HandleFunc("/tx", SubmitTx(blockchain)).Methods("POST") // tx to mempool
+	api.HandleFunc("/tx", SubmitTransferTx(blockchain)).Methods("POST") // tx to mempool
 	api.HandleFunc("/tx/{txid}", GetTx(blockchain)).Methods("GET")
 
 	// UTXO 관련 API

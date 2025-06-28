@@ -27,7 +27,7 @@ func setTestTransaction() *Transaction {
 	output := &TxOutput{
 		Address: addr,
 		Amount:  1000,
-		TxType:  0, // 일반 트랜잭션
+		TxType:  TxTypeGeneral, // 일반 트랜잭션
 	}
 
 	// 트랜잭션 생성

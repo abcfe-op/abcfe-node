@@ -186,22 +186,36 @@ func GetBalanceByUtxo(bc *core.BlockChain) http.HandlerFunc {
 	}
 }
 
-// func SubmitTx(bc *core.BlockChain) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		var req SubmitTxReq // mock data
-// 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-// 			sendResp(w, http.StatusBadRequest, nil, err)
-// 			return
-// 		}
+func SubmitTransferTx(bc *core.BlockChain) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req SubmitTxReq // mock data
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			sendResp(w, http.StatusBadRequest, nil, err)
+			return
+		}
 
-// 		if err := bc.SubmitTx(req); err != nil {
-// 			sendResp(w, http.StatusInternalServerError, nil, err)
-// 			return
-// 		}
+		from, err := utils.StringToAddress(req.From)
+		if err != nil {
+			sendResp(w, http.StatusBadRequest, nil, err)
+			return
+		}
 
-// 		sendResp(w, http.StatusOK, true, nil)
-// 	}
-// }
+		to, err := utils.StringToAddress(req.To)
+		if err != nil {
+			sendResp(w, http.StatusBadRequest, nil, err)
+			return
+		}
+
+		txType := core.TxTypeGeneral // 일반 트랜잭션
+
+		if err := bc.SubmitTx(from, to, req.Amount, req.Memo, req.Data, txType); err != nil {
+			sendResp(w, http.StatusInternalServerError, nil, err)
+			return
+		}
+
+		sendResp(w, http.StatusOK, true, nil)
+	}
+}
 
 // func ComposeAndAddBlock(bc *core.BlockChain) http.HandlerFunc {
 // 	return func(w http.ResponseWriter, r *http.Request) {

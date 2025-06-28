@@ -1,8 +1,8 @@
 package core
 
 const (
-	TxTypeGeneral   = 0
-	TxTypeStaking   = 1
-	TxTypeUnStaking = 2
-	TxTypeEtc       = 3
+	TxTypeGeneral uint8 = iota
+	TxTypeStaking
+	TxTypeUnStaking
+	TxTypeEtc
 )

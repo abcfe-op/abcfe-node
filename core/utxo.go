@@ -130,16 +130,6 @@ func (p *BlockChain) LoadUtxoData(batch *leveldb.Batch, blk Block) error {
 	panic("not yet")
 }
 
-func (p *BlockChain) CalBalanceUtxo(utxos []*UTXO) uint64 {
-	var amount uint64
-	for _, utxo := range utxos {
-		if !utxo.Spent {
-			amount += utxo.TxOut.Amount
-		}
-	}
-	return amount
-}
-
 func (p *BlockChain) ValidateUtxo(tx *Transaction) (bool, error) {
 	panic("not yet")
 }
@@ -172,4 +162,14 @@ func (p *BlockChain) GetUtxoList(address prt.Address) ([]*UTXO, error) {
 	}
 
 	return result, nil
+}
+
+func (p *BlockChain) CalBalanceUtxo(utxos []*UTXO) uint64 {
+	var amount uint64
+	for _, utxo := range utxos {
+		if !utxo.Spent {
+			amount += utxo.TxOut.Amount
+		}
+	}
+	return amount
 }
