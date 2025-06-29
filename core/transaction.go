@@ -250,13 +250,12 @@ func (p *BlockChain) GetOutputTxByIdx(txId prt.Hash, idx int) (*TxOutput, error)
 }
 
 func (p *BlockChain) SubmitTx(from, to prt.Address, amount uint64, memo string, data []byte, txType uint8) error {
-	// utxo 기반으로 밸런스 체크
 	utxoList, err := p.GetUtxoList(from)
 	if err != nil {
 		return fmt.Errorf("failed to get balance: %w", err)
 	}
 
-	// utxo
+	// utxo 기반으로 밸런스 체크
 	balance := p.CalBalanceUtxo(utxoList)
 	if balance < amount {
 		return fmt.Errorf("not enough balance. you have just %d", balance)

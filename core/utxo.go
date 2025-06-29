@@ -19,10 +19,7 @@ type UTXO struct {
 	SpentHeight uint64
 }
 
-// // UTXO 관련 접두사
-// PrefixUtxo        = "utxo:"      // utxo:트랜잭션해시:인덱스 = UTXO 데이터
-// PrefixAddressUtxo = "utxo:addr:" // utxo:addr:주소 = UTXO 키 배열
-// PrefixBalance     = "utxo:bal:"  // utxo:bal:주소 = 잔액
+// UTXO 관련 접두사
 func (p *BlockChain) UpdateUtxo(batch *leveldb.Batch, blk Block) error {
 	for _, tx := range blk.Transactions {
 		if blk.Header.Height > 0 { // Genesis Block은 output만 처리
@@ -77,6 +74,11 @@ func (p *BlockChain) UpdateUtxo(batch *leveldb.Batch, blk Block) error {
 			}
 		}
 
+		// ! 아래 for 문에서 매번 키값을 가져오고 거기에 덮어쓰는 방향으로 코드가 진행 중.
+		// 정확한 방식은 좀 소통하고 찾아봐야할 듯 함
+		// // addr:[utxoKey1, utxoKey2]
+		// addrList := []string{}
+
 		// 3. OUTPUT으로 생성된 UTXO를 추가해줘야함
 		for outputIndex, output := range tx.Outputs {
 			newUtxo := UTXO{
@@ -126,14 +128,8 @@ func (p *BlockChain) UpdateUtxo(batch *leveldb.Batch, blk Block) error {
 	return nil
 }
 
-func (p *BlockChain) LoadUtxoData(batch *leveldb.Batch, blk Block) error {
-	panic("not yet")
-}
-
-func (p *BlockChain) ValidateUtxo(tx *Transaction) (bool, error) {
-	panic("not yet")
-}
-
+// mempool 에 들어간 utox는 일단 사용한 것이라고 판단. 그 이후 블록 제안이 실패하면 그때ㄴ느 다시 사용할 수 있는 걸로.
+// 즉 GetUtxoList에서 가져오는 Utxo에는 Mempool에 들어갔는지 체크하고 존재하면, 그 UTXO만 빼고 제공
 func (p *BlockChain) GetUtxoList(address prt.Address) ([]*UTXO, error) {
 	utxoListKey := utils.GetUtxoListKey(address)
 	utxoListBytes, err := p.db.Get(utxoListKey, nil)
@@ -156,6 +152,11 @@ func (p *BlockChain) GetUtxoList(address prt.Address) ([]*UTXO, error) {
 		var utxo UTXO
 		if err := utils.DeserializeData(utxoBytes, &utxo, utils.SerializationFormatGob); err != nil {
 			return nil, fmt.Errorf("failed to deserialize utxo list: %w", err)
+		}
+
+		// 멤풀에 들어간 UTXO인지 확인
+		if p.isOnMempool(utxo.TxId, utxo.OutputIndex) {
+			continue // 멤풀에 있는 UTXO // 사용됨으로 간주
 		}
 
 		result = append(result, &utxo)
