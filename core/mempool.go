@@ -82,3 +82,17 @@ func (p *Mempool) Clear() {
 
 	p.transactions = make(map[string]*Transaction)
 }
+
+func (p *BlockChain) isOnMempool(txId prt.Hash, outputIndex uint64) bool {
+	exist := false
+
+	for _, tx := range p.mempool.transactions {
+		for _, input := range tx.Inputs {
+			if input.OutputIndex == outputIndex && input.TxID == txId {
+				exist = true
+			}
+		}
+	}
+
+	return exist
+}
