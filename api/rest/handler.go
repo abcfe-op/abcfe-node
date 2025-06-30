@@ -149,7 +149,7 @@ func GetAddressUtxo(bc *core.BlockChain) http.HandlerFunc {
 			return
 		}
 
-		utxos, err := bc.GetUtxoList(address)
+		utxos, err := bc.GetUtxoList(address, false)
 		if err != nil {
 			sendResp(w, http.StatusNotFound, nil, err)
 			return
