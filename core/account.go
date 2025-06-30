@@ -60,7 +60,7 @@ func UpdAccountStatus(address prt.Address, status string) {
 }
 
 func (p *BlockChain) GetBalance(address prt.Address) (uint64, error) {
-	utxoList, err := p.GetUtxoList(address)
+	utxoList, err := p.GetUtxoList(address, false)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get balance: %w", err)
 	}

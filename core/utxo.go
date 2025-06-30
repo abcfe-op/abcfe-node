@@ -73,14 +73,33 @@ func (p *BlockChain) UpdateUtxo(batch *leveldb.Batch, blk Block) error {
 				batch.Put(utxoListKey, updatedListBytes)
 			}
 		}
+	}
 
-		// ! 아래 for 문에서 매번 키값을 가져오고 거기에 덮어쓰는 방향으로 코드가 진행 중.
-		// 정확한 방식은 좀 소통하고 찾아봐야할 듯 함
-		// // addr:[utxoKey1, utxoKey2]
-		// addrList := []string{}
+	// 2. OUTPUT 처리
+	// 주소별로 UTXO 리스트를 한 번만 로드 => 덮어쓰기 안되도록
+	addressUTXOMap := make(map[prt.Address]AddrUTXOSet)
 
-		// 3. OUTPUT으로 생성된 UTXO를 추가해줘야함
+	for _, tx := range blk.Transactions {
 		for outputIndex, output := range tx.Outputs {
+			// 주소별 UTXO 리스트가 이미 로드되었는지 확인
+			utxoList, exists := addressUTXOMap[output.Address]
+			if !exists {
+				// 처음 나온 주소면 DB에서 로드
+				utxoListKey := utils.GetUtxoListKey(output.Address)
+				utxoListBytes, err := p.db.Get(utxoListKey, nil)
+				if err == nil {
+					if err := utils.DeserializeData(utxoListBytes, &utxoList, utils.SerializationFormatGob); err != nil {
+						return fmt.Errorf("failed to deserialize utxo list: %w", err)
+					}
+				} else if err != leveldb.ErrNotFound {
+					return fmt.Errorf("failed to get utxo list: %w", err)
+				} else {
+					utxoList = make(AddrUTXOSet)
+				}
+				addressUTXOMap[output.Address] = utxoList
+			}
+
+			// UTXO 생성 및 저장
 			newUtxo := UTXO{
 				TxId:        tx.ID,
 				OutputIndex: uint64(outputIndex),
@@ -90,7 +109,6 @@ func (p *BlockChain) UpdateUtxo(batch *leveldb.Batch, blk Block) error {
 				SpentHeight: 0,
 			}
 
-			// UTXO 저장
 			utxoKey := utils.GetUtxoKey(tx.ID, outputIndex)
 			utxoBytes, err := utils.SerializeData(newUtxo, utils.SerializationFormatGob)
 			if err != nil {
@@ -98,39 +116,26 @@ func (p *BlockChain) UpdateUtxo(batch *leveldb.Batch, blk Block) error {
 			}
 			batch.Put(utxoKey, utxoBytes)
 
-			// 해당 주소의 UTXO 리스트에 추가
-			var utxoList AddrUTXOSet
-			utxoListKey := utils.GetUtxoListKey(output.Address)
-
-			utxoListBytes, err := p.db.Get(utxoListKey, nil)
-			if err == nil {
-				if err := utils.DeserializeData(utxoListBytes, &utxoList, utils.SerializationFormatGob); err != nil {
-					return fmt.Errorf("failed to deserialize utxo list: %w", err)
-				}
-			} else if err != leveldb.ErrNotFound {
-				return fmt.Errorf("failed to get utxo list: %w", err)
-			} else {
-				utxoList = make(AddrUTXOSet)
-			}
-
-			// 리스트에 추가
+			// 메모리의 리스트에 추가
 			utxoList[string(utxoKey)] = true
-
-			// 업데이트된 리스트 저장
-			updatedListBytes, err := utils.SerializeData(utxoList, utils.SerializationFormatGob)
-			if err != nil {
-				return fmt.Errorf("failed to serialize utxo list: %w", err)
-			}
-			batch.Put(utxoListKey, updatedListBytes)
 		}
+	}
+
+	// 3. 모든 변경사항을 한 번에 저장
+	for address, utxoList := range addressUTXOMap {
+		utxoListKey := utils.GetUtxoListKey(address)
+		updatedListBytes, err := utils.SerializeData(utxoList, utils.SerializationFormatGob)
+		if err != nil {
+			return fmt.Errorf("failed to serialize utxo list: %w", err)
+		}
+		batch.Put(utxoListKey, updatedListBytes)
 	}
 
 	return nil
 }
 
-// mempool 에 들어간 utox는 일단 사용한 것이라고 판단. 그 이후 블록 제안이 실패하면 그때ㄴ느 다시 사용할 수 있는 걸로.
-// 즉 GetUtxoList에서 가져오는 Utxo에는 Mempool에 들어갔는지 체크하고 존재하면, 그 UTXO만 빼고 제공
-func (p *BlockChain) GetUtxoList(address prt.Address) ([]*UTXO, error) {
+// 최종 balance는 mempool에 사용된 자금도 포함해야함.
+func (p *BlockChain) GetUtxoList(address prt.Address, mempoolCheck bool) ([]*UTXO, error) {
 	utxoListKey := utils.GetUtxoListKey(address)
 	utxoListBytes, err := p.db.Get(utxoListKey, nil)
 	if err != nil {
@@ -154,9 +159,10 @@ func (p *BlockChain) GetUtxoList(address prt.Address) ([]*UTXO, error) {
 			return nil, fmt.Errorf("failed to deserialize utxo list: %w", err)
 		}
 
-		// 멤풀에 들어간 UTXO인지 확인
-		if p.isOnMempool(utxo.TxId, utxo.OutputIndex) {
-			continue // 멤풀에 있는 UTXO // 사용됨으로 간주
+		if mempoolCheck {
+			if p.isOnMempool(utxo.TxId, utxo.OutputIndex) {
+				continue // 멤풀에 있는 UTXO // 사용됨으로 간주
+			}
 		}
 
 		result = append(result, &utxo)

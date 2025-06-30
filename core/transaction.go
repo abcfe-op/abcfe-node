@@ -45,7 +45,7 @@ type TxIOPair struct {
 }
 
 func (p *BlockChain) SetTransferTx(from prt.Address, to prt.Address, amount uint64, memo string, data []byte, txType uint8) (*Transaction, error) {
-	utxos, err := p.GetUtxoList(from)
+	utxos, err := p.GetUtxoList(from, true)
 	if err != nil {
 		return nil, err
 	}
@@ -250,7 +250,7 @@ func (p *BlockChain) GetOutputTxByIdx(txId prt.Hash, idx int) (*TxOutput, error)
 }
 
 func (p *BlockChain) SubmitTx(from, to prt.Address, amount uint64, memo string, data []byte, txType uint8) error {
-	utxoList, err := p.GetUtxoList(from)
+	utxoList, err := p.GetUtxoList(from, true)
 	if err != nil {
 		return fmt.Errorf("failed to get balance: %w", err)
 	}
