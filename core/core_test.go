@@ -27,7 +27,7 @@ func setTestTransaction() *Transaction {
 	output := &TxOutput{
 		Address: addr,
 		Amount:  1000,
-		TxType:  0, // 일반 트랜잭션
+		TxType:  TxTypeGeneral, // 일반 트랜잭션
 	}
 
 	// 트랜잭션 생성
@@ -119,7 +119,7 @@ func TestSetBlock(t *testing.T) {
 	}
 
 	blkHash := utils.Hash(block)
-	block.Hash = blkHash
+	block.Header.Hash = blkHash
 
 	fmt.Println(block)
 }
@@ -167,8 +167,8 @@ func TestSetBlock(t *testing.T) {
 // 		Transactions: txs,
 // 	}
 
-// 	blkHash := utils.Hash(block)
-// 	block.Hash = blkHash
+// blkHash := utils.Hash(block)
+// block.Header.Hash = blkHash
 
 // 	// block serialization
 // 	blockBytes, err := utils.SerializeData(block, utils.SerializationFormatGob)
@@ -257,7 +257,9 @@ func TestSetGenesisBlock(t *testing.T) {
 		Header:       *blkHeader,
 		Transactions: txs,
 	}
-	block.Hash = utils.Hash(block)
+
+	blkHash := utils.Hash(block)
+	block.Header.Hash = blkHash
 
 	fmt.Println("Genesis Block: ", block)
 }

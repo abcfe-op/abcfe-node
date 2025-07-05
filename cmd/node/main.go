@@ -23,7 +23,11 @@ func main() {
 	logger.Info("Node start.")
 
 	// rest api start
-
+	if err := app.NewRest(); err != nil {
+		logger.Error("Failed to start services:", err)
+		app.Terminate()
+		os.Exit(1)
+	}
 	// json-rpc start
 
 	// grpc start

@@ -1,6 +1,10 @@
 package core
 
-import prt "github.com/abcfe/abcfe-node/protocol"
+import (
+	"fmt"
+
+	prt "github.com/abcfe/abcfe-node/protocol"
+)
 
 type Account struct {
 	Address   prt.Address `json:"address"`   // 계정 주소
@@ -53,4 +57,14 @@ func UpdAccountStatus(address prt.Address, status string) {
 	// 없다면 json 형태로 생성 setAccount
 	// key:value로 저장
 	panic("Not Developed Yet")
+}
+
+func (p *BlockChain) GetBalance(address prt.Address) (uint64, error) {
+	utxoList, err := p.GetUtxoList(address, false)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get balance: %w", err)
+	}
+
+	balance := p.CalBalanceUtxo(utxoList)
+	return balance, nil
 }

@@ -11,7 +11,6 @@ import (
 
 type Block struct {
 	Header       BlockHeader    `json:"header"`       // 블록 헤더
-	Hash         prt.Hash       `json:"hash"`         // 블록 해시
 	Transactions []*Transaction `json:"transactions"` // 트랜잭션 목록
 
 	// TODO: Consensus 시작시
@@ -22,13 +21,13 @@ type Block struct {
 }
 
 type BlockHeader struct {
-	Version  string   `json:"version"`  // 블록체인 프로토콜 버전
-	Height   uint64   `json:"height"`   // 블록 높이 (uint64로 변경)
-	PrevHash prt.Hash `json:"prevHash"` // 이전 블록 해시
-	// TODO: 고도화 시작시
-	// MerkleRoot Hash   `json:"merkleRoot"` // 트랜잭션 머클 루트
+	Hash       prt.Hash `json:"hash"`       // 블록 해시
+	PrevHash   prt.Hash `json:"prevHash"`   // 이전 블록 해시
+	Version    string   `json:"version"`    // 블록체인 프로토콜 버전
+	Height     uint64   `json:"height"`     // 블록 높이 (uint64로 변경)
+	MerkleRoot prt.Hash `json:"merkleRoot"` // 트랜잭션 머클 루트
+	Timestamp  int64    `json:"timestamp"`  // 블록 생성 시간 (Unix 타임스탬프)
 	// StateRoot  Hash   `json:"stateRoot"`  // 상태 머클 루트 (UTXO 또는 계정 상태)
-	Timestamp int64 `json:"timestamp"` // 블록 생성 시간 (Unix 타임스탬프)
 }
 
 func (p *BlockChain) setBlockHeader(height uint64, prevHash prt.Hash) *BlockHeader {
@@ -45,7 +44,7 @@ func (p *BlockChain) SetBlock(prevHash prt.Hash, height uint64) *Block {
 	blkHeader := p.setBlockHeader(height, prevHash)
 
 	// 메모리 풀에서 트랜잭션 가져오기
-	txs := p.mempool.GetTxs()
+	txs := p.Mempool.GetTxs()
 
 	blk := &Block{
 		Header:       *blkHeader,
@@ -53,7 +52,7 @@ func (p *BlockChain) SetBlock(prevHash prt.Hash, height uint64) *Block {
 	}
 
 	blkHash := utils.Hash(blk)
-	blk.Hash = blkHash
+	blk.Header.Hash = blkHash
 
 	return blk
 }
@@ -66,26 +65,34 @@ func (p *BlockChain) AddBlock(blk Block) (bool, error) {
 	// db batch process ready
 	batch := new(leveldb.Batch)
 
+	// block data save
 	err := p.saveBlockData(batch, blk)
 	if err != nil {
 		return false, fmt.Errorf("failed to save block into db: %w", err)
 	}
 
+	// tx data save
 	err = p.saveTxData(batch, blk)
 	if err != nil {
 		return false, fmt.Errorf("failed to save tx into db: %w", err)
 	}
 
-	// chain status update
-	if blk.Header.Height > p.LatestHeight || blk.Header.Height == 0 {
-		if err := p.UpdateChainState(blk.Header.Height, utils.HashToString(blk.Hash)); err != nil {
-			return false, fmt.Errorf("failed to update chain status: %w", err)
-		}
+	// utxo data save
+	err = p.UpdateUtxo(batch, blk)
+	if err != nil {
+		return false, fmt.Errorf("failed to save utxo into db: %w", err)
 	}
 
 	// batch excute
 	if err := p.db.Write(batch, nil); err != nil {
 		return false, fmt.Errorf("failed to write batch: %w", err)
+	}
+
+	// chain status update
+	if blk.Header.Height > p.LatestHeight || blk.Header.Height == 0 {
+		if err := p.UpdateChainState(blk.Header.Height, utils.HashToString(blk.Header.Hash)); err != nil {
+			return false, fmt.Errorf("failed to update chain status: %w", err)
+		}
 	}
 
 	return true, nil
@@ -99,12 +106,12 @@ func (p *BlockChain) saveBlockData(batch *leveldb.Batch, blk Block) error {
 	}
 
 	// block hash - block data mapping
-	blkHashKey := utils.GetBlockHashKey(blk.Hash)
+	blkHashKey := utils.GetBlockHashKey(blk.Header.Hash)
 	batch.Put(blkHashKey, blkBytes)
 
 	// block height - block hash mapping
 	heightKey := utils.GetBlockHeightKey(blk.Header.Height)
-	batch.Put(heightKey, []byte(utils.HashToString(blk.Hash)))
+	batch.Put(heightKey, blk.Header.Hash[:])
 
 	return nil
 }
@@ -122,7 +129,7 @@ func (p *BlockChain) saveTxData(batch *leveldb.Batch, blk Block) error {
 
 		// tx hash -> block hash
 		txBlkHashKey := utils.GetTxBlockHashKey(tx.ID)
-		batch.Put(txBlkHashKey, utils.HashToBytes(blk.Hash))
+		batch.Put(txBlkHashKey, utils.HashToBytes(blk.Header.Hash))
 
 		// TODO: tx hash -> tx status
 		// txStatusKey := utils.GetTxStatusKey()
@@ -168,7 +175,7 @@ func (p *BlockChain) saveTxData(batch *leveldb.Batch, blk Block) error {
 }
 
 // block height -> block data
-func (p *BlockChain) GetBlock(height uint64) (*Block, error) {
+func (p *BlockChain) GetBlockByHeight(height uint64) (*Block, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -181,13 +188,34 @@ func (p *BlockChain) GetBlock(height uint64) (*Block, error) {
 
 	// block hash bytes -> block hash string
 	var blkHash prt.Hash
-	blkHash = utils.BytesToHash(blkHashBytes)
+	copy(blkHash[:], blkHashBytes)
 
 	// block hash string -> block data bytes
 	blkKey := utils.GetBlockHashKey(blkHash)
 	blkDataBytes, err := p.db.Get(blkKey, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get block data from db: %w", err)
+	}
+
+	// block data bytes -> block data deserialization
+	var block Block
+	if err := utils.DeserializeData(blkDataBytes, &block, utils.SerializationFormatGob); err != nil {
+		return nil, fmt.Errorf("failed to deserialize block data: %w", err)
+	}
+
+	return &block, nil
+}
+
+// block hash -> block data
+func (p *BlockChain) GetBlockByHash(hash prt.Hash) (*Block, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	// block hash -> block hash bytes
+	blkHashKey := utils.GetBlockHashKey(hash)
+	blkDataBytes, err := p.db.Get(blkHashKey, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get block hash from db: %w", err)
 	}
 
 	// block data bytes -> block data deserialization

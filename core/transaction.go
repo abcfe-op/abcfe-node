@@ -1,6 +1,7 @@
 package core
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"time"
 
@@ -43,9 +44,12 @@ type TxIOPair struct {
 	TxOuts []*TxOutput `json:"txOuts"`
 }
 
-func (p *BlockChain) SetTx(from prt.Address, to prt.Address, amount uint64, memo string, data []byte, txType uint8) (*Transaction, error) {
-	utxos := GetUtxos(from)
-	if CalBalanceUtxo(utxos) < amount {
+func (p *BlockChain) SetTransferTx(from prt.Address, to prt.Address, amount uint64, memo string, data []byte, txType uint8) (*Transaction, error) {
+	utxos, err := p.GetUtxoList(from, true)
+	if err != nil {
+		return nil, err
+	}
+	if p.CalBalanceUtxo(utxos) < amount {
 		return &Transaction{}, fmt.Errorf("not enough balance")
 	}
 
@@ -70,7 +74,7 @@ func (p *BlockChain) SetTx(from prt.Address, to prt.Address, amount uint64, memo
 }
 
 // tx input과 output을 구성
-func (p *BlockChain) setTxIOPair(utxos UTXOSet, from prt.Address, to prt.Address, amount uint64, txType uint8) (*TxIOPair, error) {
+func (p *BlockChain) setTxIOPair(utxos []*UTXO, from prt.Address, to prt.Address, amount uint64, txType uint8) (*TxIOPair, error) {
 	var txInAndOut TxIOPair
 	var total uint64
 
@@ -169,7 +173,7 @@ func (p *BlockChain) GetBlockHashByTxId(txId prt.Hash) (prt.Hash, error) {
 // prt.PrefixTxStatus
 // }
 
-func (p *BlockChain) GetInputTx(txId prt.Hash) ([]TxInput, error) {
+func (p *BlockChain) GetInputTx(txId prt.Hash) (*[]TxInput, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -185,10 +189,10 @@ func (p *BlockChain) GetInputTx(txId prt.Hash) ([]TxInput, error) {
 		return nil, fmt.Errorf("failed to deserialize tx input data: %w", err)
 	}
 
-	return txInputs, nil
+	return &txInputs, nil
 }
 
-func (p *BlockChain) GetOutputTx(txId prt.Hash) ([]TxOutput, error) {
+func (p *BlockChain) GetOutputTx(txId prt.Hash) (*[]TxOutput, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -204,7 +208,7 @@ func (p *BlockChain) GetOutputTx(txId prt.Hash) ([]TxOutput, error) {
 		return nil, fmt.Errorf("failed to deserialize tx output data: %w", err)
 	}
 
-	return txOutputs, nil
+	return &txOutputs, nil
 }
 
 func (p *BlockChain) GetInputTxByIdx(txId prt.Hash, idx int) (*TxInput, error) {
@@ -243,4 +247,65 @@ func (p *BlockChain) GetOutputTxByIdx(txId prt.Hash, idx int) (*TxOutput, error)
 	}
 
 	return &txOutput, nil
+}
+
+func (p *BlockChain) SubmitTx(from, to prt.Address, amount uint64, memo string, data []byte, txType uint8) error {
+	utxoList, err := p.GetUtxoList(from, true)
+	if err != nil {
+		return fmt.Errorf("failed to get balance: %w", err)
+	}
+
+	// utxo 기반으로 밸런스 체크
+	balance := p.CalBalanceUtxo(utxoList)
+	if balance < amount {
+		return fmt.Errorf("not enough balance. you have just %d", balance)
+	}
+
+	// set transaction
+	tx, err := p.SetTransferTx(from, to, amount, memo, data, txType)
+	if err != nil {
+		return fmt.Errorf("failed to set transaction: %w", err)
+	}
+
+	// mempool에 저장
+	if err := p.Mempool.NewTranaction(tx); err != nil {
+		return fmt.Errorf("failed to save transaction in mempool: %w", err)
+	}
+
+	return nil
+}
+
+func calculateMerkleRoot(txs []*Transaction) prt.Hash {
+	if len(txs) == 0 {
+		return prt.Hash{} // 빈 해시 반환
+	}
+
+	// 각 트랜잭션을 해시
+	hashes := make([]prt.Hash, len(txs))
+	for i, tx := range txs {
+		hashes[i] = utils.Hash(tx)
+	}
+
+	// 머클 트리 계산
+	return buildMerkleTree(hashes)
+}
+
+func buildMerkleTree(hashes []prt.Hash) prt.Hash {
+	if len(hashes) == 1 {
+		return hashes[0]
+	}
+
+	// 짝수 개로 맞추기
+	if len(hashes)%2 != 0 {
+		hashes = append(hashes, hashes[len(hashes)-1])
+	}
+
+	// 다음 레벨 계산
+	nextLevel := make([]prt.Hash, len(hashes)/2)
+	for i := 0; i < len(hashes); i += 2 {
+		combined := append(hashes[i][:], hashes[i+1][:]...)
+		nextLevel[i/2] = sha256.Sum256(combined)
+	}
+
+	return buildMerkleTree(nextLevel)
 }

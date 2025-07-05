@@ -44,6 +44,10 @@ type Genesis struct {
 	SystemBalances  []uint64 `toml:"SystemBalances"`
 }
 
+type Server struct {
+	RestPort int `toml:"RestPort"`
+}
+
 type Config struct {
 	Common  Common
 	LogInfo LogInfo
@@ -51,6 +55,7 @@ type Config struct {
 	Wallet  Wallet
 	Version Version
 	Genesis Genesis
+	Server  Server
 }
 
 func NewConfig(filepath string) (*Config, error) {

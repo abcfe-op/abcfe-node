@@ -16,23 +16,29 @@ func (p *BlockChain) SetGenesisBlock() (*Block, error) {
 		defaultPrevHash[i] = 0x00
 	}
 
-	blkHeader := &BlockHeader{
-		Version:   p.cfg.Version.Protocol,
-		Height:    0,
-		PrevHash:  defaultPrevHash,
-		Timestamp: time.Now().Unix(),
-	}
-
 	txs, err := p.setGenesisTxs()
 	if err != nil {
 		return nil, err
+	}
+
+	// 머클 루트 계산
+	merkleRoot := calculateMerkleRoot(txs)
+
+	blkHeader := &BlockHeader{
+		PrevHash:   defaultPrevHash,
+		Version:    p.cfg.Version.Protocol,
+		Height:     0,
+		Timestamp:  time.Now().Unix(),
+		MerkleRoot: merkleRoot,
 	}
 
 	block := &Block{
 		Header:       *blkHeader,
 		Transactions: txs,
 	}
-	block.Hash = utils.Hash(block)
+
+	blkHash := utils.Hash(block)
+	block.Header.Hash = blkHash
 
 	return block, nil
 }

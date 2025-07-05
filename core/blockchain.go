@@ -15,7 +15,7 @@ type BlockChain struct {
 	LatestBlockHash string
 	db              *leveldb.DB
 	cfg             *config.Config
-	mempool         *Mempool
+	Mempool         *Mempool
 	mu              sync.RWMutex // 쓰기가 없는 경우, 읽기 고루틴이 여러개 접근 가능
 }
 
@@ -23,13 +23,13 @@ func NewChainState(db *leveldb.DB, cfg *config.Config) (*BlockChain, error) {
 	bc := &BlockChain{
 		db:      db,
 		cfg:     cfg,
-		mempool: NewMempool(),
+		Mempool: NewMempool(),
 	}
 
 	if err := bc.LoadChainDB(); err != nil {
 		return nil, err
 	}
-	if bc.LatestHeight == 0 {
+	if bc.LatestHeight == 0 && bc.LatestBlockHash == "" {
 		genesisBlk, err := bc.SetGenesisBlock()
 		if err != nil {
 			return nil, err
@@ -77,7 +77,7 @@ func (p *BlockChain) LoadChainDB() error {
 	}
 	p.LatestHeight = height
 
-	blkHashBytes, err := p.db.Get([]byte(proto.PrefixMetaBlockHash+string(heightBytes)), nil)
+	blkHashBytes, err := p.db.Get([]byte(proto.PrefixMetaBlockHash), nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return fmt.Errorf("failed to load latest block hash: %w", err)
 	}
@@ -135,9 +135,6 @@ func (p *BlockChain) UpdateChainState(height uint64, blockHash string) error {
 	if height == 0 && blockHash == "" {
 		return nil
 	}
-
-	p.mu.Lock()
-	defer p.mu.Unlock()
 
 	// memory update
 	p.LatestBlockHash = blockHash
