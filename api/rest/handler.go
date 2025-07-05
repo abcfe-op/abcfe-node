@@ -217,31 +217,40 @@ func SubmitTransferTx(bc *core.BlockChain) http.HandlerFunc {
 	}
 }
 
-// func ComposeAndAddBlock(bc *core.BlockChain) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		var req ComposeAndAddBlockReq // mock data
-// 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-// 			sendResp(w, http.StatusBadRequest, nil, err)
-// 			return
-// 		}
+func ComposeAndAddBlock(bc *core.BlockChain) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-// 		// 블록 구성
-// 		blk, err := bc.ComposeBlock(req)
-// 		if err != nil {
-// 			sendResp(w, http.StatusInternalServerError, nil, err)
-// 			return
-// 		}
+		curHeight := bc.LatestHeight + 1
+		prevHash, err := utils.StringToHash(bc.LatestBlockHash)
+		if err != nil {
+			sendResp(w, http.StatusInternalServerError, nil, err)
+			return
+		}
 
-// 		//
-// 		result, err := bc.AddBlock(blk)
-// 		if err != nil {
-// 			sendResp(w, http.StatusInternalServerError, nil, err)
-// 			return
-// 		}
+		// 블록 구성
+		blk := bc.SetBlock(prevHash, curHeight)
 
-// 		sendResp(w, http.StatusOK, result, nil)
-// 	}
-// }
+		// 블록 추가
+		result, err := bc.AddBlock(*blk)
+		if err != nil {
+			sendResp(w, http.StatusInternalServerError, nil, err)
+			return
+		}
+
+		sendResp(w, http.StatusOK, result, nil)
+	}
+}
+
+func GetMempoolList(bc *core.BlockChain) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		mempoolTxs := bc.Mempool.GetTxs()
+
+		response := formatTxsResp(mempoolTxs)
+
+		sendResp(w, http.StatusOK, response, nil)
+	}
+}
 
 // send response
 func sendResp(w http.ResponseWriter, statusCode int, data interface{}, err error) {
@@ -301,7 +310,7 @@ func formatTxInputsResp(inputs []*core.TxInput) []interface{} {
 		result[i] = map[string]interface{}{
 			"txid":        utils.HashToString(input.TxID),
 			"outputIndex": input.OutputIndex,
-			"signature":   input.Signature,
+			"signature":   utils.SignatureToString(input.Signature),
 			"publicKey":   input.PublicKey,
 		}
 	}
@@ -336,6 +345,14 @@ func formatUtxoResp(utxos []*core.UTXO) []interface{} {
 			"spent":       utxo.Spent,
 			"spentHeight": utxo.SpentHeight,
 		}
+	}
+	return result
+}
+
+func formatTxsResp(txs []*core.Transaction) []interface{} {
+	result := make([]interface{}, len(txs))
+	for i, tx := range txs {
+		result[i] = formatTxResp(tx)
 	}
 	return result
 }

@@ -46,8 +46,3 @@ type SubmitTxReq struct {
 	Memo   string `json:"memo"`
 	Data   []byte `json:"data"`
 }
-
-type ComposeAndAddBlockReq struct {
-	Proposer  string `json:"proposer"`
-	Validator string `json:"validator"`
-}

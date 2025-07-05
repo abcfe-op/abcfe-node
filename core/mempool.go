@@ -86,7 +86,7 @@ func (p *Mempool) Clear() {
 func (p *BlockChain) isOnMempool(txId prt.Hash, outputIndex uint64) bool {
 	exist := false
 
-	for _, tx := range p.mempool.transactions {
+	for _, tx := range p.Mempool.transactions {
 		for _, input := range tx.Inputs {
 			if input.OutputIndex == outputIndex && input.TxID == txId {
 				exist = true

@@ -268,7 +268,7 @@ func (p *BlockChain) SubmitTx(from, to prt.Address, amount uint64, memo string, 
 	}
 
 	// mempool에 저장
-	if err := p.mempool.NewTranaction(tx); err != nil {
+	if err := p.Mempool.NewTranaction(tx); err != nil {
 		return fmt.Errorf("failed to save transaction in mempool: %w", err)
 	}
 

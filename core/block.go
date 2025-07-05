@@ -44,7 +44,7 @@ func (p *BlockChain) SetBlock(prevHash prt.Hash, height uint64) *Block {
 	blkHeader := p.setBlockHeader(height, prevHash)
 
 	// 메모리 풀에서 트랜잭션 가져오기
-	txs := p.mempool.GetTxs()
+	txs := p.Mempool.GetTxs()
 
 	blk := &Block{
 		Header:       *blkHeader,
@@ -52,7 +52,7 @@ func (p *BlockChain) SetBlock(prevHash prt.Hash, height uint64) *Block {
 	}
 
 	blkHash := utils.Hash(blk)
-	blkHeader.Hash = blkHash
+	blk.Header.Hash = blkHash
 
 	return blk
 }

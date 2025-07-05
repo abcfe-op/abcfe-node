@@ -15,7 +15,7 @@ type BlockChain struct {
 	LatestBlockHash string
 	db              *leveldb.DB
 	cfg             *config.Config
-	mempool         *Mempool
+	Mempool         *Mempool
 	mu              sync.RWMutex // 쓰기가 없는 경우, 읽기 고루틴이 여러개 접근 가능
 }
 
@@ -23,7 +23,7 @@ func NewChainState(db *leveldb.DB, cfg *config.Config) (*BlockChain, error) {
 	bc := &BlockChain{
 		db:      db,
 		cfg:     cfg,
-		mempool: NewMempool(),
+		Mempool: NewMempool(),
 	}
 
 	if err := bc.LoadChainDB(); err != nil {
