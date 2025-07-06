@@ -159,6 +159,11 @@ func (p *BlockChain) GetUtxoList(address prt.Address, mempoolCheck bool) ([]*UTX
 			return nil, fmt.Errorf("failed to deserialize utxo list: %w", err)
 		}
 
+		// spent key값 확인
+		if utxo.Spent {
+			continue // 사용한 UTXO
+		}
+
 		if mempoolCheck {
 			if p.isOnMempool(utxo.TxId, utxo.OutputIndex) {
 				continue // 멤풀에 있는 UTXO // 사용됨으로 간주
