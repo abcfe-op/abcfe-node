@@ -100,6 +100,11 @@ func (p *BlockChain) AddBlock(blk Block) (bool, error) {
 		return false, fmt.Errorf("failed to write batch: %w", err)
 	}
 
+	// mempool update
+	for _, tx := range blk.Transactions {
+		delete(p.Mempool.transactions, utils.HashToString(tx.ID))
+	}
+
 	// chain status update
 	if blk.Header.Height > p.LatestHeight || blk.Header.Height == 0 {
 		if err := p.UpdateChainState(blk.Header.Height, utils.HashToString(blk.Header.Hash)); err != nil {
