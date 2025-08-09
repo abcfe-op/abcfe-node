@@ -286,16 +286,16 @@ func calculateMerkleRoot(txs []*Transaction) prt.Hash {
 		hashes[i] = utils.Hash(tx)
 	}
 
-	// 머클 트리 계산
+	// 머클 트리 계산 // 재귀 호출
 	return buildMerkleTree(hashes)
 }
 
 func buildMerkleTree(hashes []prt.Hash) prt.Hash {
 	if len(hashes) == 1 {
-		return hashes[0]
+		return hashes[0] // 루트에 도달
 	}
 
-	// 짝수 개로 맞추기
+	// 짝수 개로 맞추기 => 홀수 개면 마지막 해시를 복제
 	if len(hashes)%2 != 0 {
 		hashes = append(hashes, hashes[len(hashes)-1])
 	}
