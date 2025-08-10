@@ -1,5 +1,12 @@
 package wallet
 
+import (
+	"crypto/ecdsa"
+
+	prt "github.com/abcfe/abcfe-node/protocol"
+)
+
+// 기존 키스토어 관련 타입들
 type CipherParams struct {
 	IV string `json:"iv"` // 초기화 벡터
 }
@@ -20,3 +27,30 @@ type Crypto struct {
 	KDFParams    KDFParams    `json:"kdfparams"`
 	MAC          string       `json:"mac"` // 무결성 검증
 }
+
+// 니모닉 기반 지갑 타입들
+type MnemonicWallet struct {
+	Mnemonic     string            `json:"mnemonic"`      // 12/15/18/21/24개 단어
+	Seed         []byte            `json:"seed"`          // 니모닉에서 도출된 시드
+	MasterKey    *ecdsa.PrivateKey `json:"master_key"`    // 마스터 개인키
+	Accounts     []*Account        `json:"accounts"`      // 파생된 계정들
+	CurrentIndex int               `json:"current_index"` // 현재 사용 중인 계정 인덱스
+}
+
+type Account struct {
+	Index      int               `json:"index"`       // 계정 인덱스 (0, 1, 2...)
+	Address    prt.Address       `json:"address"`     // 20바이트 주소
+	PrivateKey *ecdsa.PrivateKey `json:"private_key"` // 개인키 (언락된 경우에만)
+	PublicKey  *ecdsa.PublicKey  `json:"public_key"`  // 공개키
+	Path       string            `json:"path"`        // BIP-44 경로 (m/44'/60'/0'/0/0)
+	Unlocked   bool              `json:"unlocked"`    // 언락 상태
+}
+
+// BIP-44 경로 상수
+const (
+	BIP44Purpose  = 44
+	BIP44CoinType = 60 // Ethereum
+	BIP44Account  = 0
+	BIP44Change   = 0 // External
+	BIP44Index    = 0
+)
