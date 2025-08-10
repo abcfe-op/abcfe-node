@@ -12,23 +12,15 @@ import (
 )
 
 type Wallet struct {
-	Address    prt.Address       // 20바이트 주소
-	PrivateKey *ecdsa.PrivateKey // ECDSA 개인키
-	PublicKey  *ecdsa.PublicKey  // ECDSA 공개키
-	keystore   *KeyStoreManager  // 의존성 주입
+	Address       prt.Address       // 20바이트 주소
+	PrivateKey    *ecdsa.PrivateKey // ECDSA 개인키
+	PublicKey     *ecdsa.PublicKey  // ECDSA 공개키
+	WalletManager *WalletManager
 }
 
-type Account struct {
-	Address    prt.Address
-	PrivateKey *ecdsa.PrivateKey // 언락된 경우에만 존재
-	PublicKey  *ecdsa.PublicKey
-	KeyStore   *KeyStore
-	Unlocked   bool
-}
-
-func NewWallet(keystore *KeyStoreManager) *Wallet {
+func NewWallet(keystore *WalletManager) *Wallet {
 	return &Wallet{
-		keystore: keystore,
+		WalletManager: keystore,
 	}
 }
 
