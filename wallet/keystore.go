@@ -1,12 +1,16 @@
 package wallet
 
 import (
+	"crypto/ecdsa"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/abcfe/abcfe-node/common/crypto"
+	"github.com/abcfe/abcfe-node/config"
 	"github.com/tyler-smith/go-bip39"
 )
 
@@ -41,15 +45,29 @@ func (f FileWalletStorage) CreateDir(path string) error {
 // WalletManager에 주입
 type WalletManager struct {
 	walletDir string
-	wallet    *MnemonicWallet
-	storage   WalletStorage
+	Wallet    *MnemonicWallet
+	Storage   WalletStorage
 }
 
 func NewWalletManager(walletDir string) *WalletManager {
 	return &WalletManager{
 		walletDir: walletDir,
-		storage:   FileWalletStorage{},
+		Storage:   FileWalletStorage{},
 	}
+}
+
+func InitWallet(cfg *config.Config) (*WalletManager, error) {
+	if cfg.Wallet.Path == "" {
+		return nil, fmt.Errorf("failed to find wallet path. path is nil")
+	}
+
+	wm := NewWalletManager(cfg.Wallet.Path)
+	err := wm.LoadWalletFile()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load wallet: %w", err)
+	}
+
+	return wm, nil
 }
 
 // 새 니모닉 지갑 생성
@@ -75,10 +93,16 @@ func (p *WalletManager) CreateWallet() (*MnemonicWallet, error) {
 		return nil, fmt.Errorf("failed to derive master key: %w", err)
 	}
 
+	// 마스터 키를 바이트로 변환
+	masterKeyBytes, err := crypto.PrivateKeyToBytes(masterKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal master key: %w", err)
+	}
+
 	wallet := &MnemonicWallet{
 		Mnemonic:     mnemonic,
 		Seed:         seed,
-		MasterKey:    masterKey,
+		MasterKey:    masterKeyBytes,
 		Accounts:     []*Account{},
 		CurrentIndex: 0,
 	}
@@ -90,7 +114,7 @@ func (p *WalletManager) CreateWallet() (*MnemonicWallet, error) {
 	}
 
 	wallet.Accounts = append(wallet.Accounts, account)
-	p.wallet = wallet
+	p.Wallet = wallet
 
 	return wallet, nil
 }
@@ -111,10 +135,16 @@ func (p *WalletManager) RestoreWallet(mnemonic string) (*MnemonicWallet, error) 
 		return nil, fmt.Errorf("failed to derive master key: %w", err)
 	}
 
+	// 마스터 키를 바이트로 변환
+	masterKeyBytes, err := crypto.PrivateKeyToBytes(masterKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal master key: %w", err)
+	}
+
 	wallet := &MnemonicWallet{
 		Mnemonic:     mnemonic,
 		Seed:         seed,
-		MasterKey:    masterKey,
+		MasterKey:    masterKeyBytes,
 		Accounts:     []*Account{},
 		CurrentIndex: 0,
 	}
@@ -126,24 +156,24 @@ func (p *WalletManager) RestoreWallet(mnemonic string) (*MnemonicWallet, error) 
 	}
 
 	wallet.Accounts = append(wallet.Accounts, account)
-	p.wallet = wallet
+	p.Wallet = wallet
 
 	return wallet, nil
 }
 
 // 새 계정 추가
 func (p *WalletManager) AddAccount() (*Account, error) {
-	if p.wallet == nil {
+	if p.Wallet == nil {
 		return nil, fmt.Errorf("wallet not initialized")
 	}
 
-	nextIndex := len(p.wallet.Accounts)
-	account, err := p.deriveAccount(p.wallet, nextIndex)
+	nextIndex := len(p.Wallet.Accounts)
+	account, err := p.deriveAccount(p.Wallet, nextIndex)
 	if err != nil {
 		return nil, fmt.Errorf("failed to derive account: %w", err)
 	}
 
-	p.wallet.Accounts = append(p.wallet.Accounts, account)
+	p.Wallet.Accounts = append(p.Wallet.Accounts, account)
 	return account, nil
 }
 
@@ -152,8 +182,14 @@ func (p *WalletManager) deriveAccount(wallet *MnemonicWallet, index int) (*Accou
 	path := fmt.Sprintf("m/%d'/%d'/%d'/%d/%d",
 		BIP44Purpose, BIP44CoinType, BIP44Account, BIP44Change, index)
 
+	// 바이트를 개인키로 변환
+	masterKey, err := crypto.BytesToPrivateKey(wallet.MasterKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert master key: %w", err)
+	}
+
 	// 마스터 키에서 계정 키 파생
-	privateKey, publicKey, err := crypto.DeriveAccountKey(wallet.MasterKey, path)
+	privateKey, publicKey, err := crypto.DeriveAccountKey(masterKey, path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to derive account key: %w", err)
 	}
@@ -164,11 +200,22 @@ func (p *WalletManager) deriveAccount(wallet *MnemonicWallet, index int) (*Accou
 		return nil, fmt.Errorf("failed to generate address: %w", err)
 	}
 
+	// 키들을 바이트로 변환
+	privateKeyBytes, err := crypto.PrivateKeyToBytes(privateKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert private key: %w", err)
+	}
+
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert public key: %w", err)
+	}
+
 	return &Account{
 		Index:      index,
 		Address:    address,
-		PrivateKey: privateKey,
-		PublicKey:  publicKey,
+		PrivateKey: privateKeyBytes,
+		PublicKey:  publicKeyBytes,
 		Path:       path,
 		Unlocked:   true, // 니모닉 기반이므로 언락됨
 	}, nil
@@ -176,24 +223,24 @@ func (p *WalletManager) deriveAccount(wallet *MnemonicWallet, index int) (*Accou
 
 // 지갑 저장
 func (p *WalletManager) SaveWallet() error {
-	if p.wallet == nil {
+	if p.Wallet == nil {
 		return fmt.Errorf("wallet not initialized")
 	}
 
 	// 지갑 디렉토리 생성
-	if err := p.storage.CreateDir(p.walletDir); err != nil {
+	if err := p.Storage.CreateDir(p.walletDir); err != nil {
 		return fmt.Errorf("failed to create wallet directory: %w", err)
 	}
 
-	// 파일명 생성 (wallet.json)
-	walletFile := filepath.Join(p.walletDir, "wallet.json")
-
-	bytes, err := json.Marshal(p.wallet)
+	// JSON 직렬화
+	bytes, err := json.Marshal(p.Wallet)
 	if err != nil {
 		return fmt.Errorf("failed to marshal wallet data: %w", err)
 	}
 
-	err = p.storage.Write(walletFile, bytes)
+	// 파일 저장
+	walletFile := filepath.Join(p.walletDir, "wallet.json")
+	err = p.Storage.Write(walletFile, bytes)
 	if err != nil {
 		return fmt.Errorf("failed to write wallet file: %w", err)
 	}
@@ -202,45 +249,115 @@ func (p *WalletManager) SaveWallet() error {
 }
 
 // 지갑 로드
-func (p *WalletManager) LoadWallet() error {
-	// TODO: 지갑 파일에서 로드 구현
-	return fmt.Errorf("not implemented yet")
+func (p *WalletManager) LoadWalletFile() error {
+	if p.walletDir == "" {
+		return fmt.Errorf("wallet directory not set")
+	}
+
+	// 파일 경로 설정
+	filePath := p.walletDir
+	if !strings.HasSuffix(filePath, ".json") {
+		filePath = filepath.Join(filePath, "wallet.json")
+	}
+
+	// 파일 읽기
+	bytes, err := p.Storage.Read(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to read wallet file: %w", err)
+	}
+
+	// JSON 역직렬화
+	wallet := &MnemonicWallet{}
+	err = json.Unmarshal(bytes, wallet)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal wallet data: %w", err)
+	}
+
+	p.Wallet = wallet
+	return nil
 }
 
 // 현재 계정 가져오기
 func (p *WalletManager) GetCurrentAccount() (*Account, error) {
-	if p.wallet == nil || len(p.wallet.Accounts) == 0 {
+	if p.Wallet == nil || len(p.Wallet.Accounts) == 0 {
 		return nil, fmt.Errorf("no accounts available")
 	}
-	return p.wallet.Accounts[p.wallet.CurrentIndex], nil
+	return p.Wallet.Accounts[p.Wallet.CurrentIndex], nil
 }
 
 // 계정 변경
 func (p *WalletManager) SwitchAccount(index int) error {
-	if p.wallet == nil {
-		return fmt.Errorf("wallet not initialized")
+	if p.Wallet == nil {
+		return fmt.Errorf("Wallet not initialized")
 	}
 
-	if index < 0 || index >= len(p.wallet.Accounts) {
+	if index < 0 || index >= len(p.Wallet.Accounts) {
 		return fmt.Errorf("invalid account index")
 	}
 
-	p.wallet.CurrentIndex = index
+	p.Wallet.CurrentIndex = index
 	return nil
 }
 
 // 니모닉 표시
 func (p *WalletManager) GetMnemonic() (string, error) {
-	if p.wallet == nil {
+	if p.Wallet == nil {
 		return "", fmt.Errorf("wallet not initialized")
 	}
-	return p.wallet.Mnemonic, nil
+	return p.Wallet.Mnemonic, nil
 }
 
 // 계정 목록 가져오기
 func (p *WalletManager) GetAccounts() ([]*Account, error) {
-	if p.wallet == nil {
+	if p.Wallet == nil {
 		return nil, fmt.Errorf("wallet not initialized")
 	}
-	return p.wallet.Accounts, nil
+	return p.Wallet.Accounts, nil
+}
+
+// 현재 계정의 개인키 가져오기 (ecdsa.PrivateKey 형태)
+func (p *WalletManager) GetCurrentPrivateKey() (*ecdsa.PrivateKey, error) {
+	if p.Wallet == nil || len(p.Wallet.Accounts) == 0 {
+		return nil, fmt.Errorf("no accounts available")
+	}
+
+	account := p.Wallet.Accounts[p.Wallet.CurrentIndex]
+	if len(account.PrivateKey) == 0 {
+		return nil, fmt.Errorf("private key not available")
+	}
+
+	return crypto.BytesToPrivateKey(account.PrivateKey)
+}
+
+// 현재 계정의 공개키 가져오기 (ecdsa.PublicKey 형태)
+func (p *WalletManager) GetCurrentPublicKey() (*ecdsa.PublicKey, error) {
+	if p.Wallet == nil || len(p.Wallet.Accounts) == 0 {
+		return nil, fmt.Errorf("no accounts available")
+	}
+
+	account := p.Wallet.Accounts[p.Wallet.CurrentIndex]
+	if len(account.PublicKey) == 0 {
+		return nil, fmt.Errorf("public key not available")
+	}
+
+	pub, err := x509.ParsePKIXPublicKey(account.PublicKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse public key: %w", err)
+	}
+
+	return pub.(*ecdsa.PublicKey), nil
+}
+
+// 특정 계정의 개인키 가져오기
+func (p *WalletManager) GetAccountPrivateKey(index int) (*ecdsa.PrivateKey, error) {
+	if p.Wallet == nil || index < 0 || index >= len(p.Wallet.Accounts) {
+		return nil, fmt.Errorf("invalid account index")
+	}
+
+	account := p.Wallet.Accounts[index]
+	if len(account.PrivateKey) == 0 {
+		return nil, fmt.Errorf("private key not available")
+	}
+
+	return crypto.BytesToPrivateKey(account.PrivateKey)
 }

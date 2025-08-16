@@ -24,7 +24,7 @@ protocol = "1.0.0"
 transaction = "1.0.0"
 
 [genesis]
-SystemAddresses = ["ABCFEABCFEABCFEABCFEABCFEABCFEABCFEABCFE"]
+SystemAddresses = ["17112bdf0c4b66abcb6b9651538a36da97031cca"]
 SystemBalances = [500000000]
 
 [server]
