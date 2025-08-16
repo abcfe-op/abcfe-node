@@ -5,6 +5,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/x509"
 	"math/big"
 )
 
@@ -49,4 +50,20 @@ func DeriveAccountKey(masterKey *ecdsa.PrivateKey, path string) (*ecdsa.PrivateK
 	privateKey.PublicKey.X, privateKey.PublicKey.Y = privateKey.PublicKey.Curve.ScalarBaseMult(newD.Bytes())
 
 	return privateKey, &privateKey.PublicKey, nil
+}
+
+// 개인키를 바이트로 변환하는 헬퍼 함수
+func PrivateKeyToBytes(privateKey *ecdsa.PrivateKey) ([]byte, error) {
+	if privateKey == nil {
+		return nil, nil
+	}
+	return x509.MarshalECPrivateKey(privateKey)
+}
+
+// 바이트를 개인키로 변환하는 헬퍼 함수
+func BytesToPrivateKey(data []byte) (*ecdsa.PrivateKey, error) {
+	if len(data) == 0 {
+		return nil, nil
+	}
+	return x509.ParseECPrivateKey(data)
 }

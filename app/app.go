@@ -11,10 +11,12 @@ import (
 	"time"
 
 	"github.com/abcfe/abcfe-node/api/rest"
+	"github.com/abcfe/abcfe-node/common/crypto"
 	"github.com/abcfe/abcfe-node/common/logger"
 	conf "github.com/abcfe/abcfe-node/config"
 	"github.com/abcfe/abcfe-node/core"
 	"github.com/abcfe/abcfe-node/storage"
+	"github.com/abcfe/abcfe-node/wallet"
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
@@ -28,6 +30,7 @@ type App struct {
 	DB         *leveldb.DB // db내의 mutex는 복사되면 안됨
 	BlockChain *core.BlockChain
 	restServer *rest.Server // 추가: REST API 서버 필드
+	Wallet     *wallet.WalletManager
 }
 
 func New() (*App, error) {
@@ -48,6 +51,13 @@ func New() (*App, error) {
 		return nil, err
 	}
 
+	wallet, err := wallet.InitWallet(cfg)
+	if err != nil {
+		logger.Error("Failed to load wallet: ", err)
+		return nil, err
+	}
+	logger.Info("wallet imported: ", crypto.AddressTo0xPrefixString(wallet.Wallet.Accounts[0].Address))
+
 	bc, err := core.NewChainState(db, cfg)
 	if err != nil {
 		logger.Error("failed to initailze chain state: ", err)
@@ -59,6 +69,7 @@ func New() (*App, error) {
 		Conf:       *cfg,
 		DB:         db,
 		BlockChain: bc,
+		Wallet:     wallet,
 	}
 
 	// REST API 서버 초기화

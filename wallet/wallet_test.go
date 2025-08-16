@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/abcfe/abcfe-node/common/crypto"
+	"github.com/abcfe/abcfe-node/common/utils"
 )
 
 // 기존 테스트
@@ -112,19 +113,18 @@ func TestCreateWallet(t *testing.T) {
 		t.Fatalf("Error: %v", err)
 	}
 
-	wm.wallet = wallet
+	wm.Wallet = wallet
 
 	fmt.Printf("dir: %v\n", wm.walletDir)
-	fmt.Printf("wallet: %v\n", wm.wallet.Mnemonic)
-	fmt.Printf("seed: %v\n", wm.wallet.Seed)
-	fmt.Printf("master key: %v\n", wm.wallet.MasterKey)
-	fmt.Printf("master pub key: %v\n", wm.wallet.MasterKey.PublicKey)
-	fmt.Printf("accounts: %v\n", wm.wallet.Accounts[0])
-	fmt.Printf("pub key: %v\n", wm.wallet.Accounts[0].PublicKey)
-	fmt.Printf("priv key: %v\n", wm.wallet.Accounts[0].PrivateKey)
-	fmt.Printf("address: %v\n", crypto.AddressTo0xPrefixString(wm.wallet.Accounts[0].Address))
-	fmt.Printf("path: %v\n", wm.wallet.Accounts[0].Path)
-	fmt.Printf("cur idx: %v\n", wm.wallet.CurrentIndex)
+	fmt.Printf("Wallet: %v\n", wm.Wallet.Mnemonic)
+	fmt.Printf("seed: %v\n", wm.Wallet.Seed)
+	fmt.Printf("master key: %v\n", wm.Wallet.MasterKey)
+	fmt.Printf("accounts: %v\n", wm.Wallet.Accounts[0])
+	fmt.Printf("pub key: %v\n", wm.Wallet.Accounts[0].PublicKey)
+	fmt.Printf("priv key: %v\n", wm.Wallet.Accounts[0].PrivateKey)
+	fmt.Printf("address: %v\n", crypto.AddressTo0xPrefixString(wm.Wallet.Accounts[0].Address))
+	fmt.Printf("path: %v\n", wm.Wallet.Accounts[0].Path)
+	fmt.Printf("cur idx: %v\n", wm.Wallet.CurrentIndex)
 }
 
 func TestRestoreWallet(t *testing.T) {
@@ -133,16 +133,16 @@ func TestRestoreWallet(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error: %v", err)
 	}
-	wm.wallet = wallet
+	wm.Wallet = wallet
 
-	newAddress := crypto.AddressTo0xPrefixString(wm.wallet.Accounts[0].Address)
+	newAddress := crypto.AddressTo0xPrefixString(wm.Wallet.Accounts[0].Address)
 
 	// 복구 시작
-	restoredWallet, err := wm.RestoreWallet(wm.wallet.Mnemonic)
+	restoredWallet, err := wm.RestoreWallet(wm.Wallet.Mnemonic)
 	if err != nil {
 		t.Fatalf("Error: %v\n", err)
 	}
-	wm.wallet = restoredWallet
+	wm.Wallet = restoredWallet
 
 	restoredAddress := crypto.AddressTo0xPrefixString(restoredWallet.Accounts[0].Address)
 	if restoredAddress != newAddress {
@@ -153,14 +153,14 @@ func TestRestoreWallet(t *testing.T) {
 	fmt.Printf("restored address: %s\n", restoredAddress)
 }
 
-func TestSaveAndLoadWallet(t *testing.T) {
+func TestSaveWallet(t *testing.T) {
 	// 디렉토리 경로로 변경
 	wm := NewWalletManager("../resource/wallet")
 	wallet, err := wm.CreateWallet()
 	if err != nil {
 		t.Fatalf("Error: %v", err)
 	}
-	wm.wallet = wallet
+	wm.Wallet = wallet
 
 	err = wm.SaveWallet()
 	if err != nil {
@@ -168,4 +168,15 @@ func TestSaveAndLoadWallet(t *testing.T) {
 	}
 
 	fmt.Printf("지갑이 성공적으로 저장되었습니다: %s\n", wm.walletDir)
+}
+
+func TestLoadWallet(t *testing.T) {
+	// 디렉토리 경로로 변경
+	wm := NewWalletManager("../resource/wallet") // 파일 경로가 아닌 디렉토리 경로
+	err := wm.LoadWalletFile()
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+
+	fmt.Printf("지갑이 성공적으로 로드되었습니다: %v\n", utils.AddressToString(wm.Wallet.Accounts[0].Address))
 }
