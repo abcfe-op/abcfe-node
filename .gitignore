@@ -52,3 +52,6 @@ resource/wallet/*
 
 # 디버그 파일들
 __debug_bin* 
+
+abcfe-node
+abcfed
