@@ -1,0 +1,31 @@
+[common]
+level = "local"
+serviceName = "abcfe-node"
+port = 3000
+mode = "boot"
+
+[logInfo]
+path = "./log/syslogs/"
+maxAgeHour = 1440
+rotateHour = 24
+ProdTelKey = "https://api.telegram.org/bot7680194780:AAH8x_GSIdSlQIBcffSBPkxRvTr63ssrrbE/sendMessage"
+ProdChatId = -4572666133
+DevTelKey = "https://api.telegram.org/bot7821171888:AAH9oi3bI7M-rGZJvRM2J5h6vYXJ3KxqKf0/sendMessage"
+DevChatId = -4572666133
+
+[db]
+path = "./resource/db/"
+
+[wallet]
+path = "./resource/wallet"
+
+[version]
+protocol = "1.0.0"
+transaction = "1.0.0"
+
+[genesis]
+SystemAddresses = ["17112bdf0c4b66abcb6b9651538a36da97031cca"]
+SystemBalances = [500000000]
+
+[server]
+RestPort = 8000

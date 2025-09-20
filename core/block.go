@@ -30,21 +30,21 @@ type BlockHeader struct {
 	// StateRoot  Hash   `json:"stateRoot"`  // 상태 머클 루트 (UTXO 또는 계정 상태)
 }
 
-func (p *BlockChain) setBlockHeader(height uint64, prevHash prt.Hash) *BlockHeader {
-	blkHeader := &BlockHeader{
-		Version:   p.cfg.Version.Protocol,
-		Height:    height,
-		PrevHash:  prevHash,
-		Timestamp: time.Now().Unix(),
-	}
-	return blkHeader
-}
-
 func (p *BlockChain) SetBlock(prevHash prt.Hash, height uint64) *Block {
-	blkHeader := p.setBlockHeader(height, prevHash)
-
 	// 메모리 풀에서 트랜잭션 가져오기
 	txs := p.Mempool.GetTxs()
+
+	// 머클 루트 계산
+	merkleRoot := calculateMerkleRoot(txs)
+
+	// 헤더 구성
+	blkHeader := &BlockHeader{
+		Version:    p.cfg.Version.Protocol,
+		Height:     height,
+		PrevHash:   prevHash,
+		Timestamp:  time.Now().Unix(),
+		MerkleRoot: merkleRoot,
+	}
 
 	blk := &Block{
 		Header:       *blkHeader,
@@ -56,6 +56,18 @@ func (p *BlockChain) SetBlock(prevHash prt.Hash, height uint64) *Block {
 
 	return blk
 }
+
+// TOOD: 모듈화 여부는 이후에 내용이 많아질 경우
+// func (p *BlockChain) setBlockHeader(height uint64, prevHash, merkleRoot prt.Hash) *BlockHeader {
+// 	blkHeader := &BlockHeader{
+// 		Version:    p.cfg.Version.Protocol,
+// 		Height:     height,
+// 		PrevHash:   prevHash,
+// 		Timestamp:  time.Now().Unix(),
+// 		MerkleRoot: merkleRoot,
+// 	}
+// 	return blkHeader
+// }
 
 // add block to chain
 func (p *BlockChain) AddBlock(blk Block) (bool, error) {
@@ -86,6 +98,11 @@ func (p *BlockChain) AddBlock(blk Block) (bool, error) {
 	// batch excute
 	if err := p.db.Write(batch, nil); err != nil {
 		return false, fmt.Errorf("failed to write batch: %w", err)
+	}
+
+	// mempool update
+	for _, tx := range blk.Transactions {
+		delete(p.Mempool.transactions, utils.HashToString(tx.ID))
 	}
 
 	// chain status update
