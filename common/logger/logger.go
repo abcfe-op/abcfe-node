@@ -11,8 +11,9 @@ import (
 
 	"time"
 
+	conf "github.com/abcfe-op/abcfe-node/config"
+
 	// "github.com/gin-gonic/gin"
-	conf "github.com/abcfe/abcfe-node/config"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
@@ -25,7 +26,7 @@ var cf *conf.Config
 
 func InitLogger(cfg *conf.Config) error {
 	now := time.Now()
-	lPath := fmt.Sprintf("%s_%s.log", cfg.LogInfo.Path, now.Format("2006-01-02"))
+	lPath := fmt.Sprintf("%s_%s.log", cfg.LogInfo.Fpath, now.Format("2006-01-02"))
 	cf = cfg
 
 	rotator, err := rotatelogs.New(
@@ -53,7 +54,8 @@ func InitLogger(cfg *conf.Config) error {
 	w := zapcore.AddSync(rotator)
 	cw := zapcore.AddSync(os.Stdout)
 	var core zapcore.Core
-	stag = cfg.Common.Level
+	// stag = cfg.Info.RunMode
+	stag = cfg.Common.Mode
 	if stag == "alpha" {
 		core = zapcore.NewTee(
 			zapcore.NewCore(zapcore.NewJSONEncoder(encCfg), w, zap.DebugLevel),
@@ -67,6 +69,11 @@ func InitLogger(cfg *conf.Config) error {
 	logger.Info("logging init file start")
 	return nil
 }
+
+// msg := fmt.Sprint(ctx...)
+// switch level {
+// case zapcore.DebugLevel:
+// 	logger.Debug("debug", zap.String("Debug", msg))
 
 func Debug(ctx ...interface{}) {
 	var b bytes.Buffer
@@ -129,14 +136,14 @@ func sendTelegramAlert(cf *conf.Config, body string) bool {
 	telKey := cf.LogInfo.DevTelKey
 	chatId := cf.LogInfo.DevChatId
 
-	if cf.Common.Level == "prod" {
-		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Level + "] " + "!!!From Prod-live stage!!! : \n" + body + "\nModule : " + path
+	if cf.Common.Mode == "prod" {
+		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Mode + "] " + "!!!From Prod-live stage!!! : \n" + body + "\nModule : " + path
 		telKey = cf.LogInfo.ProdTelKey
 		chatId = cf.LogInfo.ProdChatId
-	} else if cf.Common.Level == "dev" {
-		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Level + "] " + "From dev stage : \n" + body + "\nModule : " + path
+	} else if cf.Common.Mode == "dev" {
+		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Mode + "] " + "From dev stage : \n" + body + "\nModule : " + path
 	} else {
-		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Level + "] " + " Message : \n" + body + "\nModule : " + path
+		msg = "[" + cf.Common.ServiceName + "_" + cf.Common.Mode + "] " + " Message : \n" + body + "\nModule : " + path
 	}
 
 	pbytes, _ := json.Marshal(map[string]interface{}{"chat_id": chatId, "text": msg})

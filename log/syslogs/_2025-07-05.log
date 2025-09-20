@@ -1,0 +1,15 @@
+{"level":"INFO","date":"2025-07-05T01:20:21.549+0900","msg":"logging init file start"}
+{"level":"INFO","date":"2025-07-05T01:20:21.575+0900","msg":"info","Info":"Successfully opened db: ./resource/db/leveldb_3000.db"}
+{"level":"INFO","date":"2025-07-05T01:20:21.576+0900","msg":"info","Info":"Node start."}
+{"level":"INFO","date":"2025-07-05T01:20:21.576+0900","msg":"info","Info":"REST API Server starting on port8000"}
+{"level":"INFO","date":"2025-07-05T01:20:21.576+0900","msg":"info","Info":"All services started"}
+{"level":"INFO","date":"2025-07-05T01:20:24.331+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/balanceDuration:590.416µs"}
+{"level":"INFO","date":"2025-07-05T01:20:25.359+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/balanceDuration:738.958µs"}
+{"level":"INFO","date":"2025-07-05T01:20:29.961+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/utxoDuration:292.292µs"}
+{"level":"INFO","date":"2025-07-05T01:20:36.995+0900","msg":"info","Info":"Request:POST/api/v1/txDuration:1.501917ms"}
+{"level":"INFO","date":"2025-07-05T01:20:40.736+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/utxoDuration:8.759125ms"}
+{"level":"INFO","date":"2025-07-05T01:21:28.404+0900","msg":"info","Info":"Request:POST/api/v1/txDuration:2.0615ms"}
+{"level":"INFO","date":"2025-07-05T01:21:31.320+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/utxoDuration:858.25µs"}
+{"level":"INFO","date":"2025-07-05T01:21:39.476+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/balanceDuration:4.247708ms"}
+{"level":"INFO","date":"2025-07-05T01:21:58.539+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/utxoDuration:961.459µs"}
+{"level":"INFO","date":"2025-07-05T01:22:17.382+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/utxoDuration:9.606872792s"}

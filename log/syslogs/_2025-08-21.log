@@ -1,0 +1,47 @@
+{"level":"INFO","date":"2025-08-21T23:04:01.329+0900","msg":"logging init file start"}
+{"level":"INFO","date":"2025-08-21T23:04:01.378+0900","msg":"info","Info":"Successfully opened db: ./resource/db/leveldb_3000.db"}
+{"level":"INFO","date":"2025-08-21T23:04:01.378+0900","msg":"info","Info":"wallet imported: 0x17112bdf0c4b66abcb6b9651538a36da97031cca"}
+{"level":"INFO","date":"2025-08-21T23:04:01.379+0900","msg":"info","Info":"Node start."}
+{"level":"INFO","date":"2025-08-21T23:04:01.379+0900","msg":"info","Info":"REST API Server starting on port8000"}
+{"level":"INFO","date":"2025-08-21T23:04:01.379+0900","msg":"info","Info":"All services started"}
+{"level":"INFO","date":"2025-08-21T23:04:04.848+0900","msg":"info","Info":"Request:GET/api/v1/block/0Duration:375µs"}
+{"level":"INFO","date":"2025-08-21T23:04:22.101+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/utxoDuration:1.205375ms"}
+{"level":"INFO","date":"2025-08-21T23:04:30.278+0900","msg":"info","Info":"Request:POST/api/v1/blockDuration:1.372917ms"}
+{"level":"INFO","date":"2025-08-21T23:04:33.133+0900","msg":"info","Info":"Request:GET/api/v1/block/0Duration:378.375µs"}
+{"level":"INFO","date":"2025-08-21T23:04:34.920+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/utxoDuration:688.584µs"}
+{"level":"INFO","date":"2025-08-21T23:04:36.734+0900","msg":"info","Info":"Request:GET/api/v1/mempool/listDuration:26.166µs"}
+{"level":"INFO","date":"2025-08-21T23:04:38.776+0900","msg":"info","Info":"Request:GET/api/v1/address/17112bdf0c4b66abcb6b9651538a36da97031cca/balanceDuration:136.625µs"}
+{"level":"INFO","date":"2025-08-21T23:04:46.260+0900","msg":"info","Info":"Request:GET/api/v1/tx/01e8a714bbaa15386b901e897f226d7f32c72c85f7ac96a31979aebfb988e6adDuration:80.541µs"}
+{"level":"INFO","date":"2025-08-21T23:04:51.567+0900","msg":"info","Info":"Request:GET/api/v1/statusDuration:131.791µs"}
+{"level":"INFO","date":"2025-08-21T23:04:54.276+0900","msg":"info","Info":"Request:GET/api/v1/block/latestDuration:1.889083ms"}
+{"level":"INFO","date":"2025-08-21T23:04:59.574+0900","msg":"info","Info":"Request:POST/api/v1/txDuration:2.11775ms"}
+{"level":"INFO","date":"2025-08-21T23:05:02.276+0900","msg":"info","Info":"Request:GET/api/v1/block/latestDuration:291.458µs"}
+{"level":"INFO","date":"2025-08-21T23:05:05.400+0900","msg":"info","Info":"Request:GET/api/v1/mempool/listDuration:201.083µs"}
+{"level":"INFO","date":"2025-08-21T23:05:13.918+0900","msg":"info","Info":"Request:GET/api/v1/address/17112bdf0c4b66abcb6b9651538a36da97031cca/balanceDuration:98.791µs"}
+{"level":"INFO","date":"2025-08-21T23:05:35.795+0900","msg":"info","Info":"Request:GET/api/v1/block/hash/b305d60dd232404ae5ad2b8f94fb8f8bb5ec652827f6379daac1794c649cc850Duration:1.601208ms"}
+{"level":"INFO","date":"2025-08-21T23:05:45.453+0900","msg":"info","Info":"Request:GET/api/v1/block/0Duration:654.208µs"}
+{"level":"INFO","date":"2025-08-21T23:05:47.834+0900","msg":"info","Info":"Request:GET/api/v1/block/1Duration:380.5µs"}
+{"level":"INFO","date":"2025-08-21T23:05:50.189+0900","msg":"info","Info":"Request:POST/api/v1/blockDuration:3.777ms"}
+{"level":"INFO","date":"2025-08-21T23:05:53.101+0900","msg":"info","Info":"Request:GET/api/v1/statusDuration:31.042µs"}
+{"level":"INFO","date":"2025-08-21T23:05:57.641+0900","msg":"info","Info":"Request:GET/api/v1/block/5Duration:164.833µs"}
+{"level":"INFO","date":"2025-08-21T23:06:14.881+0900","msg":"info","Info":"Request:GET/api/v1/block/4Duration:473.583µs"}
+{"level":"INFO","date":"2025-08-21T23:06:17.843+0900","msg":"info","Info":"Request:GET/api/v1/block/3Duration:394.458µs"}
+{"level":"INFO","date":"2025-08-21T23:06:19.545+0900","msg":"info","Info":"Request:GET/api/v1/block/2Duration:357.625µs"}
+{"level":"INFO","date":"2025-08-21T23:06:21.428+0900","msg":"info","Info":"Request:GET/api/v1/block/5Duration:378.5µs"}
+{"level":"INFO","date":"2025-08-21T23:06:36.067+0900","msg":"logging init file start"}
+{"level":"INFO","date":"2025-08-21T23:06:36.088+0900","msg":"info","Info":"Successfully opened db: ./resource/db/leveldb_3000.db"}
+{"level":"INFO","date":"2025-08-21T23:06:36.091+0900","msg":"info","Info":"wallet imported: 0x17112bdf0c4b66abcb6b9651538a36da97031cca"}
+{"level":"INFO","date":"2025-08-21T23:06:36.092+0900","msg":"info","Info":"Node start."}
+{"level":"INFO","date":"2025-08-21T23:06:36.092+0900","msg":"info","Info":"REST API Server starting on port8000"}
+{"level":"INFO","date":"2025-08-21T23:06:36.092+0900","msg":"info","Info":"All services started"}
+{"level":"INFO","date":"2025-08-21T23:06:43.746+0900","msg":"info","Info":"Request:GET/api/v1/block/5Duration:322.375µs"}
+{"level":"INFO","date":"2025-08-21T23:06:46.538+0900","msg":"info","Info":"Request:GET/api/v1/block/0Duration:1.207959ms"}
+{"level":"INFO","date":"2025-08-21T23:06:53.669+0900","msg":"info","Info":"Request:GET/api/v1/address/17112bdf0c4b66abcb6b9651538a36da97031cca/balanceDuration:146.791µs"}
+{"level":"INFO","date":"2025-08-21T23:07:04.969+0900","msg":"info","Info":"Request:GET/api/v1/tx/01e8a714bbaa15386b901e897f226d7f32c72c85f7ac96a31979aebfb988e6adDuration:142.708µs"}
+{"level":"INFO","date":"2025-08-21T23:07:07.726+0900","msg":"info","Info":"Request:GET/api/v1/block/latestDuration:550µs"}
+{"level":"INFO","date":"2025-08-21T23:07:14.307+0900","msg":"info","Info":"Request:GET/api/v1/tx/0e0b1fed6439fa09016afff39a6347db2d378831b81cb2eee42e072072d4866eDuration:1.981417ms"}
+{"level":"INFO","date":"2025-08-21T23:07:47.825+0900","msg":"info","Info":"Request:GET/api/v1/tx/111da6a19bfab96e6ec99405f09cff6b9126262940679544440a37f7a9fbc568Duration:754.666µs"}
+{"level":"INFO","date":"2025-08-21T23:10:03.070+0900","msg":"info","Info":"Arrived terminate signal: interrupt"}
+{"level":"INFO","date":"2025-08-21T23:10:03.072+0900","msg":"info","Info":"Shutting down REST API Server..."}
+{"level":"INFO","date":"2025-08-21T23:10:03.072+0900","msg":"info","Info":"All resources cleaned up"}
+{"level":"INFO","date":"2025-08-21T23:10:03.072+0900","msg":"info","Info":"Node terminated."}

@@ -1,0 +1,11 @@
+{"level":"INFO","date":"2025-08-31T12:34:30.323+0900","msg":"logging init file start"}
+{"level":"INFO","date":"2025-08-31T12:34:30.346+0900","msg":"info","Info":"Successfully opened db: ./resource/db/leveldb_3000.db"}
+{"level":"INFO","date":"2025-08-31T12:34:30.348+0900","msg":"info","Info":"wallet imported: 0x17112bdf0c4b66abcb6b9651538a36da97031cca"}
+{"level":"INFO","date":"2025-08-31T12:34:30.349+0900","msg":"info","Info":"Node start."}
+{"level":"INFO","date":"2025-08-31T12:34:30.349+0900","msg":"info","Info":"REST API Server starting on port8000"}
+{"level":"INFO","date":"2025-08-31T12:34:30.349+0900","msg":"info","Info":"All services started"}
+{"level":"INFO","date":"2025-08-31T12:35:12.105+0900","msg":"info","Info":"Request:GET/api/v1/statusDuration:40.792µs"}
+{"level":"INFO","date":"2025-08-31T12:35:17.657+0900","msg":"info","Info":"Arrived terminate signal: interrupt"}
+{"level":"INFO","date":"2025-08-31T12:35:17.657+0900","msg":"info","Info":"Shutting down REST API Server..."}
+{"level":"INFO","date":"2025-08-31T12:35:17.658+0900","msg":"info","Info":"All resources cleaned up"}
+{"level":"INFO","date":"2025-08-31T12:35:17.658+0900","msg":"info","Info":"Node terminated."}

@@ -1,0 +1,101 @@
+http://localhost:4000/
+###
+http://localhost:3000/status
+###
+http://localhost:4001/balance/ee2fe4bac2596c66f8ee7df93f47c38864c83fac7a69294ac587ad80589d68ab0a77ea975ae60461cb01cf56b8907515eb27cc8575cc384a23398c6a0226ac0d
+###
+http://localhost:4001/balance/3e48e79c1a74c9ec3b580910ac89a0ba22b5f1e79c04276a42bd12e1a6ab3706c073667d7b51ff1db2997e94d09abd743c610a035f848cc548fda2302d295f13?total=true
+###
+http://localhost:4009/blocks
+###
+http://localhost:4006/wallet
+###
+POST http://localhost:4006/blocks
+###
+POST http://localhost:4002/transaction
+
+{
+    "to":"ee2fe4bac2596c66f8ee7df93f47c38864c83fac7a69294ac587ad80589d68ab0a77ea975ae60461cb01cf56b8907515eb27cc8575cc384a23398c6a0226ac0d",
+    "amount":100,
+    "inputData":"any string"
+}
+###
+POST http://localhost:4006/stake
+###
+POST http://localhost:4001/unstake
+### 
+http://localhost:4001/staking
+### 
+POST http://localhost:4000/pos
+###
+http://localhost:4000/peer
+###
+POST http://localhost:4000/peer
+
+{
+    "address": "127.0.0.1",
+    "port": "3000"
+}
+###
+POST http://localhost:4000/peer
+
+{
+    "address": "127.0.0.1",
+    "port": "4001"
+}
+###
+POST http://localhost:3000/peer
+
+{
+    "address": "127.0.0.1",
+    "port": "4002"
+}
+###
+POST http://localhost:4000/peer
+
+{
+    "address": "127.0.0.1",
+    "port": "4003"
+}
+###
+POST http://localhost:4000/peer
+
+{
+    "address": "127.0.0.1",
+    "port": "4004"
+}
+###
+POST http://localhost:4000/peer
+
+{
+    "address": "127.0.0.1",
+    "port": "4005"
+}
+###
+POST http://localhost:4000/peer
+
+{
+    "address": "127.0.0.1",
+    "port": "4006"
+}
+###
+POST http://localhost:4000/peer
+
+{
+    "address": "127.0.0.1",
+    "port": "4007"
+}
+###
+POST http://localhost:4000/peer
+
+{
+    "address": "127.0.0.1",
+    "port": "4008"
+}
+###
+POST http://localhost:4000/peer
+
+{
+    "address": "127.0.0.1",
+    "port": "4009"
+}

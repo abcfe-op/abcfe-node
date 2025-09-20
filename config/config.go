@@ -1,88 +1,58 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path"
 
-	"github.com/abcfe/abcfe-node/common/utils"
+	"github.com/abcfe-op/abcfe-node/common/utils"
 	"github.com/naoina/toml"
 )
 
 type Common struct {
-	Level       string // local, dev, prod
+	Mode        string
 	ServiceName string
-	Port        int
-	Mode        string // boot, validator, sentry
-
 }
 
-type LogInfo struct {
-	Path       string
+type LogInfos struct {
+	Fpath      string
 	MaxAgeHour int
 	RotateHour int
 	ProdTelKey string
-	ProdChatId int
+	ProdChatId int64
 	DevTelKey  string
-	DevChatId  int
-}
-
-type DB struct {
-	Path string
-}
-
-type Wallet struct {
-	Path string
-}
-
-type Version struct {
-	Transaction string
-	Protocol    string
-}
-
-type Genesis struct {
-	SystemAddresses []string `toml:"SystemAddresses"`
-	SystemBalances  []uint64 `toml:"SystemBalances"`
-}
-
-type Server struct {
-	RestPort int `toml:"RestPort"`
+	DevChatId  int64
 }
 
 type Config struct {
 	Common  Common
-	LogInfo LogInfo
-	DB      DB
-	Wallet  Wallet
-	Version Version
-	Genesis Genesis
-	Server  Server
+	LogInfo LogInfos
 }
 
-func NewConfig(filepath string) (*Config, error) {
+func NewConfig(filepath string) *Config {
 	if filepath == "" {
-		workDir, _ := os.Getwd()
-		rootDir := utils.FindProjectRoot(workDir)
-		filepath = path.Join(rootDir, "config", "config.toml")
+		fmt.Println(os.Getwd())
+		filepath = "./config/config.toml"
 	}
-
+	// fmt.Println(os.Getwd())
 	if file, err := os.Open(filepath); err != nil {
-		return nil, err
+		return nil
 	} else {
 		defer file.Close()
 
 		c := new(Config)
 		if err := toml.NewDecoder(file).Decode(c); err != nil {
-			return nil, err
+			return nil
 		} else {
 			c.sanitize()
-			return c, nil
+			return c
 		}
 	}
 }
 
 func (p *Config) sanitize() {
-	if p.LogInfo.Path[0] == byte('~') {
-		p.LogInfo.Path = path.Join(utils.HomeDir(), p.LogInfo.Path[1:])
+	if p.LogInfo.Fpath[0] == byte('~') {
+		p.LogInfo.Fpath = path.Join(utils.HomeDir(), p.LogInfo.Fpath[1:])
 	}
 }
 
@@ -90,6 +60,6 @@ func (p *Config) GetConfig() *Config {
 	return p
 }
 
-func (p *Config) GetLogInfoConfig() *LogInfo {
+func (p *Config) GetLogInfoConfig() *LogInfos {
 	return &p.LogInfo
 }

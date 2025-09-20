@@ -1,0 +1,24 @@
+{"level":"INFO","date":"2025-08-23T19:23:16.836+0900","msg":"logging init file start"}
+{"level":"INFO","date":"2025-08-23T19:23:16.876+0900","msg":"info","Info":"Successfully opened db: ./resource/db/leveldb_3000.db"}
+{"level":"INFO","date":"2025-08-23T19:23:16.876+0900","msg":"info","Info":"wallet imported: 0x17112bdf0c4b66abcb6b9651538a36da97031cca"}
+{"level":"INFO","date":"2025-08-23T19:23:16.876+0900","msg":"info","Info":"Node start."}
+{"level":"INFO","date":"2025-08-23T19:23:16.877+0900","msg":"info","Info":"REST API Server starting on port8000"}
+{"level":"INFO","date":"2025-08-23T19:23:16.877+0900","msg":"info","Info":"All services started"}
+{"level":"INFO","date":"2025-08-23T19:23:21.839+0900","msg":"info","Info":"Request:POST/api/v1/txDuration:210.167µs"}
+{"level":"INFO","date":"2025-08-23T19:24:55.113+0900","msg":"info","Info":"Request:GET/api/v1/statusDuration:993.125µs"}
+{"level":"INFO","date":"2025-08-23T19:24:58.849+0900","msg":"info","Info":"Request:GET/api/v1/block/latestDuration:1.466375ms"}
+{"level":"INFO","date":"2025-08-23T19:31:52.092+0900","msg":"info","Info":"Arrived terminate signal: interrupt"}
+{"level":"INFO","date":"2025-08-23T19:31:52.093+0900","msg":"info","Info":"Shutting down REST API Server..."}
+{"level":"INFO","date":"2025-08-23T19:31:52.094+0900","msg":"info","Info":"All resources cleaned up"}
+{"level":"INFO","date":"2025-08-23T19:31:52.094+0900","msg":"info","Info":"Node terminated."}
+{"level":"INFO","date":"2025-08-23T19:32:04.590+0900","msg":"logging init file start"}
+{"level":"INFO","date":"2025-08-23T19:32:04.612+0900","msg":"info","Info":"Successfully opened db: ./resource/db/leveldb_3000.db"}
+{"level":"INFO","date":"2025-08-23T19:32:04.612+0900","msg":"info","Info":"wallet imported: 0x17112bdf0c4b66abcb6b9651538a36da97031cca"}
+{"level":"INFO","date":"2025-08-23T19:32:04.613+0900","msg":"info","Info":"Node start."}
+{"level":"INFO","date":"2025-08-23T19:32:04.613+0900","msg":"info","Info":"REST API Server starting on port8000"}
+{"level":"INFO","date":"2025-08-23T19:32:04.613+0900","msg":"info","Info":"All services started"}
+{"level":"INFO","date":"2025-08-23T19:32:10.900+0900","msg":"info","Info":"Request:GET/api/v1/block/latestDuration:1.906166ms"}
+{"level":"INFO","date":"2025-08-23T19:32:19.784+0900","msg":"info","Info":"Arrived terminate signal: interrupt"}
+{"level":"INFO","date":"2025-08-23T19:32:19.785+0900","msg":"info","Info":"Shutting down REST API Server..."}
+{"level":"INFO","date":"2025-08-23T19:32:19.786+0900","msg":"info","Info":"All resources cleaned up"}
+{"level":"INFO","date":"2025-08-23T19:32:19.787+0900","msg":"info","Info":"Node terminated."}

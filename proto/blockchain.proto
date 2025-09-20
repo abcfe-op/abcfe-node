@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+package proto;
+option go_package = "./proto";
+
+service BlockchainService {
+  // 블록 전체 조회
+  rpc GetBlocks (Empty) returns (BlocksResponse);
+  // 특정 블록 조회
+  rpc GetBlock (BlockRequest) returns (BlockResponse);
+  // 블록체인 상태 조회
+  rpc GetStatus (Empty) returns (StatusResponse);
+  // 잔액 조회
+  rpc GetBalance (BalanceRequest) returns (BalanceResponse);
+  // 멤풀 조회
+  rpc GetMempool (Empty) returns (MempoolResponse);
+  // 트랜잭션 생성
+  rpc CreateTransaction (TransactionRequest) returns (TransactionResponse);
+  // 지갑 정보 조회
+  rpc GetWallet (Empty) returns (WalletResponse);
+  // 스테이킹 관련 기능들
+  rpc Stake (Empty) returns (StakeResponse);
+  rpc Unstake (Empty) returns (UnstakeResponse);
+  rpc GetStakingList (Empty) returns (StakingListResponse);
+}
+
+message Empty {}
+
+message Block {
+  string hash = 1;
+  string prev_hash = 2;
+  int32 height = 3;
+  int32 timestamp = 4;
+  repeated Transaction transaction = 5;
+  RoleInfo role_info = 6;
+  repeated ValidateSignature signature = 7;
+}
+
+message Transaction {
+  string id = 1;
+  int32 timestamp = 2;
+  repeated TxIn tx_ins = 3;
+  repeated TxOut tx_outs = 4;
+  string input_data = 5;
+}
+
+message TxIn {
+  string tx_id = 1;
+  int32 index = 2;
+  string signature = 3;
+}
+
+message TxOut {
+  string address = 1;
+  int32 amount = 2;
+}
+
+message BlocksResponse {
+  repeated Block blocks = 1;
+}
+
+message BlockRequest {
+  string hash = 1;
+}
+
+message BlockResponse {
+  Block block = 1;
+}
+
+message StatusResponse {
+  int64 currentHeight = 1;
+  string currentHash = 2;
+}
+
+message BalanceRequest {
+  string address = 1;
+}
+
+message BalanceResponse {
+  string address = 1;
+  int64 balance = 2;
+}
+
+message MempoolResponse {
+  repeated Transaction transactions = 1;
+}
+
+message TransactionRequest {
+  string to = 1;
+  int64 amount = 2;
+  string inputData = 3;
+}
+
+message TransactionResponse {
+  bool success = 1;
+  string message = 2;
+  Transaction transaction = 3;
+}
+
+message WalletResponse {
+  string address = 1;
+  string port = 2;
+}
+
+message StakeResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message UnstakeResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message StakingListResponse {
+  repeated StakingInfo stakingList = 1;
+}
+
+message StakingInfo {
+  string hash = 1;
+  string address = 2;
+  string port = 3;
+  int32 timestamp = 4;
+}
+
+message RoleInfo {
+  string proposer_address = 1;
+  string proposer_port = 2;
+  int32 proposer_selected_height = 3;
+  repeated string validator_address = 4;
+  repeated string validator_port = 5;
+  int32 validator_selected_height = 6;
+}
+
+message ValidateSignature {
+  string port = 1;
+  string address = 2;
+  string signature = 3;
+} 

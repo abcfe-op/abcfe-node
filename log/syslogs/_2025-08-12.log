@@ -1,0 +1,5 @@
+{"level":"INFO","date":"2025-08-12T23:29:25.897+0900","msg":"logging init file start"}
+{"level":"INFO","date":"2025-08-12T23:29:25.928+0900","msg":"info","Info":"Successfully opened db: ./resource/db/leveldb_3000.db"}
+{"level":"INFO","date":"2025-08-12T23:29:25.928+0900","msg":"info","Info":"Node start."}
+{"level":"INFO","date":"2025-08-12T23:29:25.928+0900","msg":"info","Info":"REST API Server starting on port8000"}
+{"level":"INFO","date":"2025-08-12T23:29:25.928+0900","msg":"info","Info":"All services started"}

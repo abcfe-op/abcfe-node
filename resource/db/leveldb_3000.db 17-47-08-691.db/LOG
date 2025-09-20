@@ -1,0 +1,18 @@
+=============== Jun 22, 2025 (KST) ===============
+17:29:55.059777 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+17:29:55.067298 db@open opening
+17:29:55.067926 version@stat F·[] S·0B[] Sc·[]
+17:29:55.071506 db@janitor F·2 G·0
+17:29:55.071537 db@open done T·4.195792ms
+=============== Jun 22, 2025 (KST) ===============
+17:40:32.063198 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+17:40:32.063450 version@stat F·[] S·0B[] Sc·[]
+17:40:32.063460 db@open opening
+17:40:32.063514 journal@recovery F·1
+17:40:32.063712 journal@recovery recovering @1
+17:40:32.069810 memdb@flush created L0@2 N·10 S·1KiB "blk..ec8,v4":"tx:..2:0,v10"
+17:40:32.070209 version@stat F·[1] S·1KiB[1KiB] Sc·[0.25]
+17:40:32.086492 db@janitor F·3 G·0
+17:40:32.086562 db@open done T·23.087459ms
+17:47:00.292767 db@close closing
+17:47:00.292936 db@close done T·165.375µs

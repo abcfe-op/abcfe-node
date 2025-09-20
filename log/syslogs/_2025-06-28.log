@@ -1,0 +1,16 @@
+{"level":"INFO","date":"2025-06-28T02:57:32.367+0900","msg":"logging init file start"}
+{"level":"INFO","date":"2025-06-28T02:57:32.398+0900","msg":"info","Info":"Successfully opened db: ./resource/db/leveldb_3000.db"}
+{"level":"INFO","date":"2025-06-28T02:57:32.399+0900","msg":"info","Info":"Node start."}
+{"level":"INFO","date":"2025-06-28T02:57:32.399+0900","msg":"info","Info":"REST API Server starting on port8000"}
+{"level":"INFO","date":"2025-06-28T02:57:32.399+0900","msg":"info","Info":"All services started"}
+{"level":"INFO","date":"2025-06-28T02:57:36.522+0900","msg":"info","Info":"Request:GET/api/v1/block/0Duration:979.459µs"}
+{"level":"INFO","date":"2025-06-28T18:30:34.777+0900","msg":"logging init file start"}
+{"level":"INFO","date":"2025-06-28T18:30:34.803+0900","msg":"info","Info":"Successfully opened db: ./resource/db/leveldb_3000.db"}
+{"level":"INFO","date":"2025-06-28T18:30:34.804+0900","msg":"info","Info":"Node start."}
+{"level":"INFO","date":"2025-06-28T18:30:34.805+0900","msg":"info","Info":"REST API Server starting on port8000"}
+{"level":"INFO","date":"2025-06-28T18:30:34.805+0900","msg":"info","Info":"All services started"}
+{"level":"INFO","date":"2025-06-28T18:30:36.668+0900","msg":"info","Info":"Request:GET/api/v1/block/0Duration:880.833µs"}
+{"level":"INFO","date":"2025-06-28T18:31:03.374+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/utxoDuration:601.167µs"}
+{"level":"INFO","date":"2025-06-28T18:31:08.266+0900","msg":"info","Info":"Request:GET/api/v1/address/abcfeabcfeabcfeabcfeabcfeabcfeabcfeabcfe/balanceDuration:534.792µs"}
+{"level":"INFO","date":"2025-06-28T18:31:10.264+0900","msg":"info","Info":"Request:GET/api/v1/block/hash/31e42359ff7e56c8e23c59dd106091fa0464ac552eb3aa4234dccfb10f014a05Duration:270.208µs"}
+{"level":"INFO","date":"2025-06-28T18:31:17.875+0900","msg":"info","Info":"Request:GET/api/v1/block/hash/23467069f9ed8ef8628576ddd2502e7be84309060254c766815c65c6a78fe12cDuration:418.708µs"}
